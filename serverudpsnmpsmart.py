@@ -102,10 +102,48 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.ups = apcsmartups.ApcSmartUps(smart_port)
 
     def handle_get(self, oid, community):
+        print("handle" , oid)
         if oid == SNMP_OID_upsBasicIdentModel: #calculate response
             res = ASN1_OCTSTR, self.ups.smartpool(self.ups.APC_CMD_UPSMODEL), SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvIdentFirmwareRevision: #calculate response
+            res = ASN1_OCTSTR, self.ups.smartpool(self.ups.APC_CMD_REVNO), SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvIdentDateOfManufacture: #calculate response
+            res = ASN1_OCTSTR, self.ups.smartpool(self.ups.APC_CMD_MANDAT), SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvIdentSerialNumber: #calculate response
+            res = ASN1_OCTSTR, self.ups.smartpool(self.ups.APC_CMD_SERNO), SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsBasicBatteryStatus: #calculate response #unknown = 1, batteryNormal = 2, batteryLow = 3, batteryInFaultCondition = 4
+            rstatus = 1
+            try:
+                status = self.ups.smartpool(self.ups.APC_CMD_STATUS)[0]
+                status = int(status.decode(), base=16)
+                rstatus = 2
+                if status & self.ups.UPS_battlow:
+                    rstatus = 3
+                if status & self.ups.UPS_replacebatt:
+                    rstatus = 4
+            except:
+                pass
+            res = ASN1_INT, rstatus, SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvBatteryCapacity: #calculate response
+            res = SNMP_GUAGE, int(self.ups.smartpool(self.ups.APC_CMD_BATTLEV).decode().split(".")[0]), SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvBatteryTemperature: #calculate response
+            val = self.ups.smartpool(self.ups.APC_CMD_ITEMP)
+            val2 = 0
+            if val.isdigit():
+                val2 = val.decode()
+            res = SNMP_GUAGE, val2, SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvBatteryRunTimeRemaining: #calculate response
+            res = SNMP_TIMETICKS, int(self.ups.smartpool(self.ups.APC_CMD_RUNTIM).decode().split(':')[0])*6000, SNMP_ERR_NOERROR
+        if oid == SNMP_OID_upsAdvBatteryReplaceIndicator: #calculate response
+            status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
+            status = int(status.decode(), base=16)
+            rstatus = 1
+            if status & self.ups.UPS_replacebatt:
+                rstatus = 0
+            res = ASN1_INT, rstatus, SNMP_ERR_NOERROR
             #print("get:oid {} is temperatureC".format(oid))
         else: #from constants _SNMP_OIDs or SNMP_ERR_NOSUCHNAME
             res = super().handle_get(oid, community)
+            print(oid, res)
         return res
 

@@ -26,5 +26,7 @@ sleep(15)
 s.running = False
 sleep(2)
 sys.exit()
+#tt = b'100.0'
+#ttt = tt.decode().split('.')[0]
 
-print("Hello!!")
+#print(int(ttt)+1)
