@@ -38,7 +38,8 @@ class ServerUdpSnmp2(ServerUdp):
             if greq.type==SNMP_GETNEXTREQUEST:
                 self._handle_get_next(oid,gresp)
             if greq.type==SNMP_SETREQUEST:
-                self._handle_set(oid,gresp)
+                self._handle_set(oid,greq, gresp)
+
 
         print("Message from Client:{}".format(greq.type))
         print("Client IP Address:{}".format(address))
@@ -49,7 +50,7 @@ class ServerUdpSnmp2(ServerUdp):
             print("sending varbinds:", o, gresp.varbinds[o])
         bytesToSend = gresp.tobytes()
         self.socket.sendto(bytesToSend, address)
-        print(time.time())
+        #print(time.time())
         return True
 
     def handle_get(self, oid, community):
@@ -71,20 +72,22 @@ class ServerUdpSnmp2(ServerUdp):
         gresp.err_status = res[2]
 
     def handle_set(self, oid, community, value):
-        res = value
-        return res
+        print(oid, community, value)
+        value_verifed = value
+        return value_verifed
 
-    def _handle_set(self, oid, gresp):
-        print("set:{}".format(oid))
-        vtype = gresp.varbinds[oid][0]
-        value = gresp.varbinds[oid][1]
+    def _handle_set(self, oid, greq, gresp):
+        print("set:{}".format(oid),greq)
+        vtype = greq.varbinds[oid][0]
+        value = greq.varbinds[oid][1]
         res = None
         for attr_name in self.__class__.__dict__:
             if attr_name.startswith('SNMP_OID_'):
                 attr_value = self.__getattribute__(attr_name)
                 if attr_value[0] == oid:
-                    if attr_value[0] == vtype:
-                        res = (vtype, self.handle_set(oid,gresp.community,gresp.varbinds[oid][1]), SNMP_ERR_NOERROR)
+                    #print("types:",attr_value[1],vtype)
+                    if attr_value[1] == vtype:
+                        res = (vtype, self.handle_set(oid,gresp.community,greq.varbinds[oid][1]), SNMP_ERR_NOERROR)
                     else:
                         #print("wrong type:",attr_value[0],"<>",vtype),
                         res = (vtype, value, SNMP_ERR_BADVALUE)
