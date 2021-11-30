@@ -1,5 +1,6 @@
 import socket
 import _thread
+from builtins import OSError
 from time import sleep
 
 
@@ -34,7 +35,7 @@ class ServerUdp(object):
         print("start thread")
         while self.running:
             try:
-                self.handle_udp(self.socket.recvfrom(self.bufferSize))
-            except:
+             self.handle_udp(self.socket.recvfrom(self.bufferSize))
+            except OSError:
                 pass
         print("stop thread")
