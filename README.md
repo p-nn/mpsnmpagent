@@ -1,5 +1,5 @@
 # mpsnmpagent
-SNMP Agent implementation fo MicroPython
+SNMP Agent implementation for MicroPython
 
 based on https://github.com/PinkInk/upylib/tree/master/usnmp
 
