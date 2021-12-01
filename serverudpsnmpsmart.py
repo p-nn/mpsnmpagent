@@ -3,20 +3,14 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvBatteryReplaceIndicator, SNMP_OID_upsAdvBatteryRunTimeRemaining, SNMP_OID_upsAdvBatteryTemperature, \
     SNMP_OID_upsAdvBatteryCapacity, SNMP_OID_upsBasicBatteryStatus, SNMP_OID_upsAdvIdentSerialNumber, \
     SNMP_OID_upsAdvIdentDateOfManufacture
-#from serverudpsnmp import ServerUdpSnmp, const2
+
 from serverudpsnmp2 import ServerUdpSnmp2
-from usnmp_codec import ASN1_NULL, ASN1_OID, SNMP_ERR_NOERROR, ASN1_OCTSTR, SNMP_GUAGE, SNMP_TIMETICKS
-from time import sleep
-import sys
-
-from usnmp_codec import ASN1_INT, SNMP_ERR_NOERROR
-
 
 class ServerUdpSnmpSmart(ServerUdpSnmp2):
 
     def __init__(self, local_ip='', local_port=161, smart_port='/dev/ttyS0'):
         super().__init__(local_ip, local_port)
-        #_SNMP_OIDs = super(ServerUdpSnmpSmart, self).__init__()
+
         self.add_oid(SNMP_OID_upsBasicIdentModel)# "Smart-UPS APC SC-420"
         self.add_oid(SNMP_OID_upsAdvIdentFirmwareRevision)  # "411.7.I"
         self.add_oid(SNMP_OID_upsAdvIdentDateOfManufacture) # "12/10/07"

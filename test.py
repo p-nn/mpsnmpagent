@@ -1,35 +1,24 @@
 import collections
 
 import mibs
-from serverudpsnmp2 import ServerUdpSnmp2, const2
+from serverudpsnmp2 import ServerUdpSnmp2
 from time import sleep
 import sys
 
-try:
-    from ucollections import OrderedDict
-except:
-    try:
-        from collections import OrderedDict
-    except:
-        pass
 from serverudpsnmpsmart import ServerUdpSnmpSmart
-from usnmp_codec import ASN1_INT, SNMP_ERR_NOERROR, ASN1_OCTSTR, ASN1_OID
-
 
 #snmpwalk -v1 -Ofn -Ir -Ci -c public localhost:7777
 
 
 class ServerUdpSnmpCustom(ServerUdpSnmp2):
     #ordered oids
-    OIDS = OrderedDict()
-    OIDS[mibs.SNMP_OID_sysDescr[0]]=mibs.SNMP_OID_sysDescr[1]
-    OIDS[mibs.SNMP_OID_sysObjectID[0]]=mibs.SNMP_OID_sysObjectID[1]
-    OIDS[mibs.SNMP_OID_sysName[0]]=mibs.SNMP_OID_sysName[1]
-   # OIDS[mibs.SNMP_OID_temperatureC[0]]=mibs.SNMP_OID_temperatureC[1]
 
-    #NVS = object()
-    #ServerUdpSnmp2.NVS[SNMP_OID_temperatureC[0]]=      '22'
-    #reverse_order = True
+    def __init__(self, local_ip='', local_port=161):
+        super().__init__(local_ip, local_port)
+        self.add_oid(mibs.SNMP_OID_sysDescr)
+        self.add_oid(mibs.SNMP_OID_sysObjectID)
+        self.add_oid(mibs.SNMP_OID_sysName)
+
     def handle_get(self, oid, community):
         print("handle_get: community=",community)
         res = None
@@ -53,16 +42,9 @@ class ServerUdpSnmpCustom(ServerUdpSnmp2):
         value_verifed = value
         return value_verifed
 
-#s = ServerUdpSnmpCustom('', 7777)
-#try:
-#    from machine import PWRON_RESET
-#    s.reverse_order = False
+s = ServerUdpSnmpCustom('', 7777)
 
-#except:
-#   # s.reverse_order = True #
-#    print("reverse order attributes")
-
-s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
+#s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
 s.start()
 sleep(30)
 s.running = False
