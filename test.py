@@ -1,3 +1,5 @@
+import collections
+
 from serverudpsnmp2 import ServerUdpSnmp2, const2
 from time import sleep
 import sys
@@ -10,9 +12,9 @@ from usnmp_codec import ASN1_INT, SNMP_ERR_NOERROR, ASN1_OCTSTR, ASN1_OID
 
 
 class ServerUdpSnmpCustom(ServerUdpSnmp2):
-    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1"), ASN1_OCTSTR
-    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2"), ASN1_OID #"1.3.6.1.4.1.318.1.3.1"
-    SNMP_OID_sysName        = const2("1.3.6.1.2.1.1.5"), ASN1_OCTSTR
+    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1"),    ASN1_OCTSTR
+    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2"),    ASN1_OID #"1.3.6.1.4.1.318.1.3.1"
+    SNMP_OID_sysName        = const2("1.3.6.1.2.1.1.5"),    ASN1_OCTSTR
     SNMP_OID_temperatureC   = const2("1.3.6.1.3.2016.5.1"), ASN1_INT
 
     #NVS = object()
@@ -51,35 +53,13 @@ s = ServerUdpSnmpCustom('', 7777)
 #    print("reverse order attributes")
 
 #s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
-#s.start()
+s.start()
 
-#sleep(10)
-#s.running = False
-#print("We stop ... ")
-#sleep(1)
-#sys.exit()
-
-
-try:
-    from ucollections import OrderedDict
-except:
-    try:
-        from collections import OrderedDict
-    except:
-        pass
-class MyClass():
-
-    oids:Dict = OrderedDict()
-    oids
-    SNMP_OID_sysDescr = oids["1.3.6.1.2.1.1.1"]=ASN1_OCTSTR
-    #oids.pop(SNMP_OID_sysObjectID    = (const2("1.3.6.1.2.1.1.2"), ASN1_OID)) #"1.3.6.1.4.1.318.1.3.1"
-    #oids.pop(SNMP_OID_sysName        = (const2("1.3.6.1.2.1.1.5"), ASN1_OCTSTR))
-    #oids.pop(SNMP_OID_temperatureC   = (const2("1.3.6.1.3.2016.5.1"), ASN1_INT))
+sleep(10)
+s.running = False
+print("We stop ... ")
+sleep(1)
+sys.exit()
 
 
-mc = MyClass()
-print(mc.SNMP_OID_sysDescr)
-#tt = b'100.0'
-#ttt = tt.decode().split('.')[0]
 
-#print(int(ttt)+1)
