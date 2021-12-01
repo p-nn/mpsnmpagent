@@ -1,3 +1,4 @@
+import collections
 import time
 from serverudp import ServerUdp
 from usnmp import SNMP_GETREQUEST, SNMP_GETNEXTREQUEST, SNMP_SETREQUEST, SNMP_GETRESPONSE, SnmpPacket, ASN1_OCTSTR, SNMP_ERR_NOSUCHNAME
@@ -22,10 +23,13 @@ class ServerUdpSnmp2(ServerUdp):
     #const starts with 'SNMP_OID_' is tuple, "sysDescr"
     #    ASN.1 sequence and SNMP derivatives
     #    #IMPORTANT manual order need for getnext over reflection
-
+    OIDS = collections.deque()# OrderedDict() #list of oids from mibs
 #    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1.0"),ASN1_OCTSTR
 #    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2.0"),ASN1_OID
-    reverse_order = False # micropython have reversed __dict__
+    def add_oid(self, const_from_mibs):
+        self.OIDS.append(const_from_mibs)
+
+
     def handle_udp(self, bytes):
         message = bytes[0]
         address = bytes[1]
@@ -58,14 +62,13 @@ class ServerUdpSnmp2(ServerUdp):
 
     def _handle_get(self, oid, gresp):#usnmp.SNMP_GETREQUEST
         res = None
-        for attr_name in self.__class__.__dict__:
+        for attr in self.OIDS:
             #print("handle_get_check: ",attr_name)
-            if res is None and attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__class__.__dict__[attr_name]
-                if attr_value[0] == oid: #from constants
-                    print("handle_get: ",attr_name, "=", attr_value)
+            if res is None:
+                if attr[0] == oid: #from constants
+                    print("handle_get: ",attr[0], "=", attr[1])
                     #res =, self.NVS[attr_value[0]], SNMP_ERR_NOERROR
-                    res = attr_value[1], self.handle_get(oid, gresp.community), SNMP_ERR_NOERROR # break
+                    res = attr[1], self.handle_get(oid, gresp.community), SNMP_ERR_NOERROR # break
         if res == None:
             res = (ASN1_NULL, None, SNMP_ERR_NOSUCHNAME)
         gresp.varbinds[oid] = res[0], res[1]
@@ -81,16 +84,14 @@ class ServerUdpSnmp2(ServerUdp):
         vtype = greq.varbinds[oid][0]
         value = greq.varbinds[oid][1]
         res = None
-        for attr_name in self.__class__.__dict__:
-            if attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__class__.__dict__[attr_name]
-                if attr_value[0] == oid:
-                    #print("types:",attr_value[1],vtype)
-                    if attr_value[1] == vtype:
-                        res = (vtype, self.handle_set(oid,gresp.community,greq.varbinds[oid][1]), SNMP_ERR_NOERROR)
-                    else:
-                        #print("wrong type:",attr_value[0],"<>",vtype),
-                        res = (vtype, value, SNMP_ERR_BADVALUE)
+        for attr in self.OIDS:
+            if attr[0] == oid:
+               #print("types:",attr_value[1],vtype)
+                if attr[1] == vtype:
+                    res = (vtype, self.handle_set(oid,gresp.community,greq.varbinds[oid][1]), SNMP_ERR_NOERROR)
+                else:
+                    #print("wrong type:",attr_value[0],"<>",vtype),
+                    res = (vtype, value, SNMP_ERR_BADVALUE)
         if res is None:
             res = (ASN1_NULL, None, SNMP_ERR_NOSUCHNAME)
 
@@ -103,19 +104,15 @@ class ServerUdpSnmp2(ServerUdp):
         #o = None
         result = None
         #    if oid in _SNMP_OIDs.keys():
-        print("get_next: oid {} check in attributes".format(oid),"reverse=",self.reverse_order)
-        dict = self.__class__.__dict__
-        if self.reverse_order:
-            dict = dict.__reversed__()
-        for attr_name in dict:
+        print("get_next: oid {} check in attributes".format(oid),"reverse=")
+        for attr in self.OIDS:
             #print("check1 ", attr_name, "for", oid, self.__class__ )
-            if result is None and attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__class__.__dict__[attr_name]
+            if result is None:
                 if f or oid == '0':
-                    result = attr_value[0]
-                if attr_value[0].startswith(oid) and(attr_value[0] != oid):#
-                    result = attr_value[0]
-                if attr_value[0] == oid: #from constants
+                    result = attr[0]
+                if attr[0].startswith(oid) and(attr[0] != oid):#
+                    result = attr[0]
+                if attr[0] == oid: #from constants
                     f = True
         print("next:{}->{}".format(oid,result))
         if result != None:
