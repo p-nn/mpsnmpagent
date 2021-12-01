@@ -25,7 +25,7 @@ class ServerUdpSnmp2(ServerUdp):
 
 #    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1.0"),ASN1_OCTSTR
 #    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2.0"),ASN1_OID
-
+    reverse_order = False
     def handle_udp(self, bytes):
         message = bytes[0]
         address = bytes[1]
@@ -61,7 +61,7 @@ class ServerUdpSnmp2(ServerUdp):
         for attr_name in self.__class__.__dict__:
             #print("handle_get_check: ",attr_name)
             if res is None and attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__getattribute__(attr_name)
+                attr_value = self.__class__.__dict__[attr_name]
                 if attr_value[0] == oid: #from constants
                     print("handle_get: ",attr_name, "=", attr_value)
                     #res =, self.NVS[attr_value[0]], SNMP_ERR_NOERROR
@@ -83,7 +83,7 @@ class ServerUdpSnmp2(ServerUdp):
         res = None
         for attr_name in self.__class__.__dict__:
             if attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__getattribute__(attr_name)
+                attr_value = self.__class__.__dict__[attr_name]
                 if attr_value[0] == oid:
                     #print("types:",attr_value[1],vtype)
                     if attr_value[1] == vtype:
@@ -103,11 +103,14 @@ class ServerUdpSnmp2(ServerUdp):
         #o = None
         result = None
         #    if oid in _SNMP_OIDs.keys():
-        print("get_next: oid {} check in attributes".format(oid))
-        for attr_name in self.__class__.__dict__:
+        print("get_next: oid {} check in attributes".format(oid),"reverse=",self.reverse_order)
+        dict = self.__class__.__dict__
+        if self.reverse_order:
+            dict = dict.__reversed__()
+        for attr_name in dict:
             #print("check1 ", attr_name, "for", oid, self.__class__ )
             if result is None and attr_name.startswith('SNMP_OID_'):
-                attr_value = self.__getattribute__(attr_name)
+                attr_value = self.__class__.__dict__[attr_name]
                 if f or oid == '0':
                     result = attr_value[0]
                 if attr_value[0].startswith(oid) and(attr_value[0] != oid):#

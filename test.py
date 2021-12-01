@@ -10,13 +10,13 @@ from usnmp_codec import ASN1_INT, SNMP_ERR_NOERROR, ASN1_OCTSTR, ASN1_OID
 
 
 class ServerUdpSnmpCustom(ServerUdpSnmp2):
-    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1.0"), ASN1_OCTSTR
-    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2.0"), ASN1_OID #"1.3.6.1.4.1.318.1.3.1"
-    SNMP_OID_sysName        = const2("1.3.6.1.2.1.1.5.0"), ASN1_OCTSTR
-    SNMP_OID_temperatureC   = const2("1.3.6.1.3.2016.5.1.0"), ASN1_INT
+    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1"), ASN1_OCTSTR
+    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2"), ASN1_OID #"1.3.6.1.4.1.318.1.3.1"
+    SNMP_OID_sysName        = const2("1.3.6.1.2.1.1.5"), ASN1_OCTSTR
+    SNMP_OID_temperatureC   = const2("1.3.6.1.3.2016.5.1"), ASN1_INT
     #NVS = object()
     #ServerUdpSnmp2.NVS[SNMP_OID_temperatureC[0]]=      '22'
-
+    reverse_order = True  #micropython reversed __dict__
     def handle_get(self, oid, community):
         print("handle_get: community=",community)
         res = None
