@@ -14,9 +14,10 @@ class ServerUdpSnmpCustom(ServerUdpSnmp2):
     SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2"), ASN1_OID #"1.3.6.1.4.1.318.1.3.1"
     SNMP_OID_sysName        = const2("1.3.6.1.2.1.1.5"), ASN1_OCTSTR
     SNMP_OID_temperatureC   = const2("1.3.6.1.3.2016.5.1"), ASN1_INT
+
     #NVS = object()
     #ServerUdpSnmp2.NVS[SNMP_OID_temperatureC[0]]=      '22'
-    reverse_order = True  #micropython reversed __dict__
+    #reverse_order = True
     def handle_get(self, oid, community):
         print("handle_get: community=",community)
         res = None
@@ -41,13 +42,43 @@ class ServerUdpSnmpCustom(ServerUdpSnmp2):
         return value_verifed
 
 s = ServerUdpSnmpCustom('', 7777)
-#s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')
-s.start()
+#try:
+#    from machine import PWRON_RESET
+#    s.reverse_order = False
 
-sleep(10)
-s.running = False
-sleep(2)
-sys.exit()
+#except:
+#   # s.reverse_order = True #
+#    print("reverse order attributes")
+
+#s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
+#s.start()
+
+#sleep(10)
+#s.running = False
+#print("We stop ... ")
+#sleep(1)
+#sys.exit()
+
+
+try:
+    from ucollections import OrderedDict
+except:
+    try:
+        from collections import OrderedDict
+    except:
+        pass
+class MyClass():
+
+    oids:Dict = OrderedDict()
+    oids
+    SNMP_OID_sysDescr = oids["1.3.6.1.2.1.1.1"]=ASN1_OCTSTR
+    #oids.pop(SNMP_OID_sysObjectID    = (const2("1.3.6.1.2.1.1.2"), ASN1_OID)) #"1.3.6.1.4.1.318.1.3.1"
+    #oids.pop(SNMP_OID_sysName        = (const2("1.3.6.1.2.1.1.5"), ASN1_OCTSTR))
+    #oids.pop(SNMP_OID_temperatureC   = (const2("1.3.6.1.3.2016.5.1"), ASN1_INT))
+
+
+mc = MyClass()
+print(mc.SNMP_OID_sysDescr)
 #tt = b'100.0'
 #ttt = tt.decode().split('.')[0]
 

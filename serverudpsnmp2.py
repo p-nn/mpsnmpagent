@@ -19,13 +19,13 @@ except:
         pass
 
 class ServerUdpSnmp2(ServerUdp):
-    #debug = True
-    #const starts with 'SNMP_OID_' is tuple, "sysDescr" # linux mbrowse, "sysObjectID"
-    #    ASN.1 sequence and SNMP derivatives #IMPORTANT manual order need for getnext
+    #const starts with 'SNMP_OID_' is tuple, "sysDescr"
+    #    ASN.1 sequence and SNMP derivatives
+    #    #IMPORTANT manual order need for getnext over reflection
 
 #    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1.0"),ASN1_OCTSTR
 #    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2.0"),ASN1_OID
-    reverse_order = False
+    reverse_order = False # micropython have reversed __dict__
     def handle_udp(self, bytes):
         message = bytes[0]
         address = bytes[1]
