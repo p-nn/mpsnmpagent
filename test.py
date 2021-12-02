@@ -46,13 +46,15 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
 
 s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
 s.start()
-sleep(30)
+sleep(90)
+#while(True):
+#    pass
 s.running = False
 print("We stop ... ")
 sleep(1)
-sys.exit()
+#sys.exit()
 
-
+#https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 #/usr/local/etc/nut/driver.list
 #"Various"       "ups"   "3"     "(various)"     "SNMP - RFC 1628"       "snmp-ups (experimental)"
 

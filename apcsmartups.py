@@ -1,7 +1,8 @@
 import time
 import serial
 
-
+#https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
+#https://networkupstools.org/protocols/apcsmart.html
 class ApcSmartUps:
     # bit values for APC UPS Status Byte (ups->Status)
     UPS_calibration = 0x00000001
@@ -75,23 +76,24 @@ class ApcSmartUps:
     # * extend lifetimes.
     # */
 
-    DISCHARGE = 'D'
+    DISCHARGE = b'D'
     CHARGE_LIM = 25
 
-    UPS_ENABLED = '?'
-    UPS_ON_BATT = '!'
-    UPS_ON_LINE = '$'
-    UPS_REPLACE_BATTERY = '#'
-    BATT_LOW = '%'
-    BATT_OK = '+'
-    UPS_EPROM_CHANGE = '|'
-    UPS_TRAILOR = ':'
-    UPS_LF = '\n'
-    UPS_CR = '\r'
+    UPS_ENABLED = b'?'
+    UPS_ON_BATT = b'!'
+    UPS_ON_LINE = b'$'
+    UPS_REPLACE_BATTERY = b'#'
+    BATT_LOW = b'%'
+    BATT_OK = b'+'
+    UPS_EPROM_CHANGE = b'|'
+    UPS_TRAILOR = b':'
+    UPS_LF = b'\n'
+    UPS_CR = b'\r'
 
     SUCCESS = 0  # Function successfull */
     FAILURE = 1  # Function failure */
 
+    alert = b' '
     def __init__(self, port='/dev/ttyS)'):
         self.online = False
         self.stat = ''
@@ -117,8 +119,14 @@ class ApcSmartUps:
     def smartpool(self, cmd):  # read data without \r\n
         self.serialport.write(cmd)
         stat = self.serialport.readline()
-        print('smatrpool:',stat,stat[:-2])
-        return stat[:-2]  # drop final \r\n
+        stat2 = stat[:-2]
+        if len(stat) > 0 and stat[0:1] in (self.UPS_ON_BATT,self.UPS_ON_LINE,self.UPS_REPLACE_BATTERY,self.UPS_ENABLED,self.UPS_REPLACE_BATTERY,self.BATT_LOW,self.BATT_OK,self.UPS_EPROM_CHANGE):
+            self.alert = stat[0:1]
+            stat2 = stat[2:-2]
+            print('##############################################################################',self.alert, stat2)
+            print('smatrpool:',cmd,'->',stat,'->',stat2)
+
+        return stat2  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
         self.serialport.timeout = 4
