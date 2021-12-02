@@ -69,6 +69,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
 
     def handle_get(self, oid, community):
         print("handle" , oid)
+        res = None
         if oid == SNMP_OID_upsBasicIdentModel[0]: #calculate response
             res = self.ups.smartpool(self.ups.APC_CMD_UPSMODEL)
         if oid == SNMP_OID_upsAdvIdentFirmwareRevision[0]: #calculate response
@@ -119,7 +120,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             val = 10*self.ups.smartpool(self.ups.APC_CMD_ITEMP)
 
         if oid == SNMP_OID_upsHighPrecBatteryActualVoltage:
-            res = self.ups.smartpool(self.ups.APC_CMD_VBATT)
+            val = self.ups.smartpool(self.ups.APC_CMD_VBATT)
             val2 = 0
             if val.isdigit():
                 val2 = 10*val.decode()
