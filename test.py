@@ -42,9 +42,9 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
         value_verifed = value
         return value_verifed
 
-s = ServerUdpSnmpCustom('', 7777)
+#s = ServerUdpSnmpCustom('', 7777)
 
-#s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
+s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
 s.start()
 sleep(30)
 s.running = False

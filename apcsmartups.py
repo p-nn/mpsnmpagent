@@ -38,7 +38,7 @@ class ApcSmartUps:
     APC_CMD_RUNTIM = b'j'  # Est. Runtime left */
     APC_CMD_ITEMP = b'C'  # Internal UPS temperature
     APC_CMD_DIPSW = b'7'  # Dip switch settings
-    APC_CMD_SENS = b's'  # Sensitivity
+    APC_CMD_SENS = b's'  # Sensitivity 'A': Auto Adjust, 'L': Low, 'M': Medium, 'H': High
     APC_CMD_DWAKE = b'r'  # Wakeup delay
     APC_CMD_DSHUTD = b'p'  # Shutdown delay
     APC_CMD_LTRANS = b'l'  # Low transfer voltage
@@ -117,6 +117,7 @@ class ApcSmartUps:
     def smartpool(self, cmd):  # read data without \r\n
         self.serialport.write(cmd)
         stat = self.serialport.readline()
+        print('smatrpool:',stat,stat[:-2])
         return stat[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
