@@ -1,16 +1,16 @@
 import collections
-
+import serverudpsnmp
 import mibs
-from serverudpsnmp2 import ServerUdpSnmp2
+
 from time import sleep
 import sys
 
 from serverudpsnmpsmart import ServerUdpSnmpSmart
-
+from serverudpsnmp import ServerUdpSnmp
 #snmpwalk -v1 -Ofn -Ir -Ci -c public localhost:7777
 
 
-class ServerUdpSnmpCustom(ServerUdpSnmp2):
+class ServerUdpSnmpCustom(ServerUdpSnmp):
     #ordered oids
 
     def __init__(self, local_ip='', local_port=161):

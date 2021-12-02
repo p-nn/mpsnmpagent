@@ -4,9 +4,9 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvBatteryCapacity, SNMP_OID_upsBasicBatteryStatus, SNMP_OID_upsAdvIdentSerialNumber, \
     SNMP_OID_upsAdvIdentDateOfManufacture
 
-from serverudpsnmp2 import ServerUdpSnmp2
+from serverudpsnmp import ServerUdpSnmp
 
-class ServerUdpSnmpSmart(ServerUdpSnmp2):
+class ServerUdpSnmpSmart(ServerUdpSnmp):
 
     def __init__(self, local_ip='', local_port=161, smart_port='/dev/ttyS0'):
         super().__init__(local_ip, local_port)
