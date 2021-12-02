@@ -53,5 +53,6 @@ sleep(1)
 sys.exit()
 
 
-
+#/usr/local/etc/nut/driver.list
+#"Various"       "ups"   "3"     "(various)"     "SNMP - RFC 1628"       "snmp-ups (experimental)"
 
