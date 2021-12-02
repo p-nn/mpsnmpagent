@@ -1,33 +1,57 @@
-from serverudpsnmp import ServerUdpSnmp, const2
+import collections
+
+import mibs
+from serverudpsnmp2 import ServerUdpSnmp2
 from time import sleep
 import sys
 
 from serverudpsnmpsmart import ServerUdpSnmpSmart
-from usnmp_codec import ASN1_INT, SNMP_ERR_NOERROR
-#snmpwalk -d -v1 -c public localhost:7777 0
 
-class ServerUdpSnmpCustom(ServerUdpSnmp):
-    SNMP_OID_temperatureC   = const2("1.3.6.1.3.2016.5.1.0")
+#snmpwalk -v1 -Ofn -Ir -Ci -c public localhost:7777
+
+
+class ServerUdpSnmpCustom(ServerUdpSnmp2):
+    #ordered oids
+
+    def __init__(self, local_ip='', local_port=161):
+        super().__init__(local_ip, local_port)
+        self.add_oid(mibs.SNMP_OID_sysDescr)
+        self.add_oid(mibs.SNMP_OID_sysObjectID)
+        self.add_oid(mibs.SNMP_OID_sysName)
 
     def handle_get(self, oid, community):
-        if oid == self.SNMP_OID_temperatureC: #calculate response
-
-            res = ASN1_INT, 25, SNMP_ERR_NOERROR
+        print("handle_get: community=",community)
+        res = None
+        if oid == mibs.SNMP_OID_sysDescr[0]: #calculate response
+            res = "SuperDevice"
+            print("get:oid {} is sysDescr".format(oid))
+        if oid == mibs.SNMP_OID_sysObjectID[0]: #calculate response
+            res = "1.3.6.1.4.1.318.1.3.1"
+            print("get:oid {} is sysObjectID".format(oid))
+        if oid == mibs.SNMP_OID_sysName[0]: #calculate response
+            res = "SuperDeviceName"
+            print("get:oid {} is sysName".format(oid))
+        if oid == mibs.SNMP_OID_temperatureC[0]: #calculate response
+            res = 25
             print("get:oid {} is temperatureC".format(oid))
-        else: #from constants _SNMP_OIDs
-            res = super().handle_get(oid)
+
         return res
 
+    def handle_set(self, oid, community, value):
+        print(oid, community, value)
+        value_verifed = value
+        return value_verifed
 
-#s = ServerUdpSnmpCustom('', 7777)
-s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')
+s = ServerUdpSnmpCustom('', 7777)
+
+#s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')#
 s.start()
-
-sleep(15)
+sleep(30)
 s.running = False
-sleep(2)
+print("We stop ... ")
+sleep(1)
 sys.exit()
-#tt = b'100.0'
-#ttt = tt.decode().split('.')[0]
 
-#print(int(ttt)+1)
+
+
+

@@ -1,4 +1,4 @@
-import time
+#import time
 from serverudp import ServerUdp
 from usnmp import SNMP_GETREQUEST, SNMP_GETNEXTREQUEST, SNMP_SETREQUEST, SNMP_GETRESPONSE, SnmpPacket, ASN1_OCTSTR, SNMP_ERR_NOSUCHNAME
 from usnmp_codec import ASN1_NULL, ASN1_OID, SNMP_ERR_NOERROR
@@ -29,7 +29,7 @@ class ServerUdpSnmp(ServerUdp):
     _SNMP_OIDs = OrderedDict()#ASN.1 sequence and SNMP derivatives #IMPORTANT manual order need for getnext
 
     _SNMP_OIDs[SNMP_OID_sysDescr]       = ASN1_OCTSTR, "sysDescr"
-    _SNMP_OIDs[SNMP_OID_sysObjectID]    = ASN1_OID, "sysObjectID"
+    _SNMP_OIDs[SNMP_OID_sysObjectID]    = ASN1_OID, "1.3.6.1.4.1.318.1.3.1"
     _SNMP_OIDs[SNMP_OID_sysContact]     = ASN1_OCTSTR, "sysContact"
     _SNMP_OIDs[SNMP_OID_sysName]        = ASN1_OCTSTR, "sysName"
     _SNMP_OIDs[SNMP_OID_sysLocation]    = ASN1_OCTSTR, "sysLocation"
@@ -58,7 +58,7 @@ class ServerUdpSnmp(ServerUdp):
         bytesToSend = gresp.tobytes()
         print("sending:{}".format(gresp))
         self.socket.sendto(bytesToSend, address)
-        print(time.time())
+        #print(time.time())
         return True
 
     def handle_get(self, oid, community):

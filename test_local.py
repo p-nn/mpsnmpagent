@@ -18,7 +18,7 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
         return res
 
 
-s = serverudpsnmp.ServerUdpSnmp('', 7777)
+s = serverudpsnmp2.ServerUdpSnmp2('', 7777)
 #s = ServerUdpSnmpSmart('', 7777,'/dev/ttyS0')
 s.start()
 #s.NVS[s.SNMP_OID_sysDescr[0]] = s.NVS[s.SNMP_OID_sysDescr[0]]+"!"
