@@ -1,4 +1,6 @@
 import collections
+
+import apcsmartups
 import serverudpsnmp
 import mibs
 
@@ -54,7 +56,10 @@ print("We stop ... ")
 sleep(1)
 #sys.exit()
 
-#https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
+
+
+
+    #https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 #/usr/local/etc/nut/driver.list
 #"Various"       "ups"   "3"     "(various)"     "SNMP - RFC 1628"       "snmp-ups (experimental)"
 

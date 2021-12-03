@@ -51,7 +51,7 @@ class ApcSmartUps:
     APC_CMD_STESTI = b'E'  # Self test interval
     APC_CMD_MANDAT = b'm'  # Manufacture date
     APC_CMD_SERNO = b'n'  # serial number
-    APC_CMD_BATTDAT = b'x'  # serial number
+    APC_CMD_BATTDAT = b'x'  # BatteryLastReplaceDate.0 = STRING8: "03/07/19
     APC_CMD_NOMBATTV = b'g'  # Nominal battery voltage
     APC_CMD_HUMID = b'h'  # UPS Humidity percentage
     APC_CMD_REVNO = b'b'  # Firmware revision
@@ -116,17 +116,25 @@ class ApcSmartUps:
     def close(self):
         self.serialport.close()
 
+    def _extract_flags(self,response):
+        #print(response[0:1])
+        n = 0
+        for i in range(len(response)-1):
+            if response[i:i+1] in (self.UPS_ON_BATT,self.UPS_ON_LINE,self.UPS_REPLACE_BATTERY,self.UPS_ENABLED,self.UPS_REPLACE_BATTERY,self.BATT_LOW,self.BATT_OK,self.UPS_EPROM_CHANGE):
+                #print('=',response[i:i+1])
+                n = i+1
+                break
+        return response[n:], response[:n]
+
     def smartpool(self, cmd):  # read data without \r\n
         self.serialport.write(cmd)
         stat = self.serialport.readline()
-        stat2 = stat[:-2]
-        if len(stat) > 0 and stat[0:1] in (self.UPS_ON_BATT,self.UPS_ON_LINE,self.UPS_REPLACE_BATTERY,self.UPS_ENABLED,self.UPS_REPLACE_BATTERY,self.BATT_LOW,self.BATT_OK,self.UPS_EPROM_CHANGE):
-            self.alert = stat[0:1]
-            stat2 = stat[2:-2]
-            print('##############################################################################',self.alert, stat2)
-            print('smatrpool:',cmd,'->',stat,'->',stat2)
+        stat2, self.alert = self._extract_flags(stat)
+        if len(self.alert)>0:
+            print('##############################################################################',self.alert)
+        print('smatrpool:',cmd,'->',stat,'->',stat2)
 
-        return stat2  # drop final \r\n
+        return stat2[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
         self.serialport.timeout = 4
@@ -191,7 +199,7 @@ class ApcSmartUps:
             time.sleep(1)
         response = self.serialport.readline()
         print("Response: {}".format(response))
-        if response != 'OK':
+        if response == b'OK' or response == b'|OK':
             print("\nError changing UPS name\n")
         self.serialport.write_timeout = 1
         self.serialport.timeout = 1

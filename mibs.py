@@ -19,6 +19,7 @@ SNMP_OID_upsAdvIdentFirmwareRevision         = const2("1.3.6.1.4.1.318.1.1.1.1.2
 SNMP_OID_upsAdvIdentDateOfManufacture        = const2("1.3.6.1.4.1.318.1.1.1.1.2.2.0"),ASN1_OCTSTR #, "12/10/07"
 SNMP_OID_upsAdvIdentSerialNumber             = const2("1.3.6.1.4.1.318.1.1.1.1.2.3.0"),ASN1_OCTSTR #, "JS0750000487"
 SNMP_OID_upsBasicBatteryStatus               = const2("1.3.6.1.4.1.318.1.1.1.2.1.1.0"),ASN1_INT #, 2 # INTEGER: batteryNormal(2)
+SNMP_OID_upsBasicBatteryLastReplaceDate      = const2("1.3.6.1.4.1.318.1.1.1.2.1.3.0"),ASN1_OCTSTR #string[8]
 SNMP_OID_upsAdvBatteryCapacity               = const2("1.3.6.1.4.1.318.1.1.1.2.2.1.0"),SNMP_GUAGE #, 100    #                APC_CMD_BATTLEV
 SNMP_OID_upsAdvBatteryTemperature            = const2("1.3.6.1.4.1.318.1.1.1.2.2.2.0"),SNMP_GUAGE #, 31 #Gauge32: 31
 SNMP_OID_upsAdvBatteryRunTimeRemaining       = const2("1.3.6.1.4.1.318.1.1.1.2.2.3.0"),SNMP_TIMETICKS #, 390000 #Timeticks: (390000) 1:05:00.00

@@ -14,7 +14,7 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvControlSimulatePowerFail, SNMP_OID_upsAdvControlFlashAndBeep, SNMP_OID_upsAdvControlTurnOnUPS, \
     SNMP_OID_upsAdvControlBypassSwitch, SNMP_OID_upsAdvTestDiagnostics, SNMP_OID_upsAdvTestRuntimeCalibration, \
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
-    SNMP_OID_upsHighPrecBatteryNominalVoltage
+    SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate
 
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
@@ -29,6 +29,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.add_oid(SNMP_OID_upsAdvIdentDateOfManufacture) # "12/10/07"
         self.add_oid(SNMP_OID_upsAdvIdentSerialNumber) # "JS0750000487"
         self.add_oid(SNMP_OID_upsBasicBatteryStatus) # 2 # INTEGER: batteryNormal(2)
+        self.add_oid(SNMP_OID_upsBasicBatteryLastReplaceDate) #MM/DD/YY
         self.add_oid(SNMP_OID_upsAdvBatteryCapacity) # 100    #                APC_CMD_BATTLEV
         self.add_oid(SNMP_OID_upsAdvBatteryTemperature) # 31 #Gauge32: 31
         self.add_oid(SNMP_OID_upsAdvBatteryRunTimeRemaining)# 390000 #Timeticks: (390000) 1:05:00.00
@@ -105,6 +106,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             except:
                 pass
             res = rstatus
+        if oid == SNMP_OID_upsBasicBatteryLastReplaceDate[0]:
+            res = self.ups.smartpool(self.ups.APC_CMD_BATTDAT)
 
         if oid == SNMP_OID_upsAdvBatteryCapacity[0]:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_BATTLEV),)
@@ -259,3 +262,14 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             print(oid, res)
         return res
 
+    def handle_set(self, oid, community, value):
+        print('handle_set0',oid, community, value)
+        verifed = None
+        if community == 'private':
+            print('handle_set1')
+            if oid == SNMP_OID_upsBasicBatteryLastReplaceDate[0]:
+                print('handle_set2',oid,value)
+                self.ups.change_ups_battery_date(value)
+                verifed =  value#self.handle_get(oid,community)
+                print('handle_set3',verifed)
+        return verifed
