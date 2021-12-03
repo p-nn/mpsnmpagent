@@ -1,23 +1,14 @@
 import collections
-import time
+
 from serverudp import ServerUdp
 from usnmp import SNMP_GETREQUEST, SNMP_GETNEXTREQUEST, SNMP_SETREQUEST, SNMP_GETRESPONSE, SnmpPacket, ASN1_OCTSTR, SNMP_ERR_NOSUCHNAME
 from usnmp_codec import ASN1_NULL, ASN1_OID, SNMP_ERR_NOERROR, SNMP_ERR_BADVALUE
 
 # https://github.com/PinkInk/upylib/tree/master/usnmp
-try:
-    const2('')
-except:
-    def const2(v):
-        return v
+def const2(v):
+   return v
 
-try:
-    from ucollections import OrderedDict
-except:
-    try:
-        from collections import OrderedDict
-    except:
-        pass
+from collections import OrderedDict
 
 class ServerUdpSnmp(ServerUdp):
     #const starts with 'SNMP_OID_' is tuple, "sysDescr"

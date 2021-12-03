@@ -1,10 +1,4 @@
-try:
-    from ucollections import OrderedDict
-except:
-    try:
-        from collections import OrderedDict
-    except:
-        pass
+from collections import OrderedDict
 
 from usnmp_codec import *
 

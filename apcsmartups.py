@@ -1,8 +1,9 @@
 import time
 import serial
 
-#https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
-#https://networkupstools.org/protocols/apcsmart.html
+
+# https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
+# https://networkupstools.org/protocols/apcsmart.html
 class ApcSmartUps:
     # bit values for APC UPS Status Byte (ups->Status)
     UPS_calibration = 0x00000001
@@ -94,6 +95,7 @@ class ApcSmartUps:
     FAILURE = 1  # Function failure */
 
     alert = b' '
+
     def __init__(self, port='/dev/ttyS)'):
         self.online = False
         self.stat = ''
@@ -116,13 +118,16 @@ class ApcSmartUps:
     def close(self):
         self.serialport.close()
 
-    def _extract_flags(self,response):
-        #print(response[0:1])
+    def _extract_flags(self, response):
+        # print(response[0:1])
         n = 0
-        for i in range(len(response)-1):
-            if response[i:i+1] in (self.UPS_ON_BATT,self.UPS_ON_LINE,self.UPS_REPLACE_BATTERY,self.UPS_ENABLED,self.UPS_REPLACE_BATTERY,self.BATT_LOW,self.BATT_OK,self.UPS_EPROM_CHANGE):
-                #print('=',response[i:i+1])
-                n = i+1
+        for i in range(len(response) - 1):
+            if response[i:i + 1] in (
+                    self.UPS_ON_BATT, self.UPS_ON_LINE, self.UPS_REPLACE_BATTERY, self.UPS_ENABLED,
+                    self.UPS_REPLACE_BATTERY,
+                    self.BATT_LOW, self.BATT_OK, self.UPS_EPROM_CHANGE):
+                # print('=',response[i:i+1])
+                n = i + 1
                 break
         return response[n:], response[:n]
 
@@ -130,9 +135,9 @@ class ApcSmartUps:
         self.serialport.write(cmd)
         stat = self.serialport.readline()
         stat2, self.alert = self._extract_flags(stat)
-        if len(self.alert)>0:
-            print('##############################################################################',self.alert)
-        print('smatrpool:',cmd,'->',stat,'->',stat2)
+        if len(self.alert) > 0:
+            print('##############################################################################', self.alert)
+        print('smatrpool:', cmd, '->', stat, '->', stat2)
 
         return stat2[:-2]  # drop final \r\n
 
@@ -230,4 +235,3 @@ class ApcSmartUps:
             print("APC_CMD_NOMOUTV: {}".format(self.smartpool(self.APC_CMD_NOMOUTV)))
             print("APC_CMD_NOMBATTV: {}".format(self.smartpool(self.APC_CMD_NOMBATTV)))
             print("APC_CMD_VOUT: {}".format(self.smartpool(self.APC_CMD_VOUT)))
-
