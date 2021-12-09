@@ -100,7 +100,7 @@ class ApcSmartUps:
         try:
 #            self.serialport = serial.Serial(port=port, baudrate=2400, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0,
 #                                            bytesize=8)
-            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33)
+            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33, timeout=4)
             self.UPSlinkCheck()
             # self.stat = self.smartpool(APC_CMD_UPS_CAPS)
         except:
@@ -109,6 +109,7 @@ class ApcSmartUps:
     def UPSlinkCheck(self):
         self.online = False
         self.serialport.write(b'Y')  # write a string
+        time.sleep(0.3)
         r = self.serialport.readline()
         if r == b'SM\r\n':
             self.online = True
@@ -119,9 +120,10 @@ class ApcSmartUps:
         pass
 
     def smartpool(self, cmd):  # read data without \r\n
+        #self.serialport.timeout = 1
         self.serialport.write(cmd)
         print(cmd)
-        time.sleep(1)
+        time.sleep(0.3) #0.3            need > 0.2
         stat = self.serialport.readline()
         print(stat)
         return stat[:-2]  # drop final \r\n
@@ -179,7 +181,7 @@ class ApcSmartUps:
         print('set new name: {}'.format(newname))
         print("APC_CMD_IDEN: {}".format(oldname))
 
-        #self.serialport.write_timeout = 4
+        self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
         time.sleep(1)
         arr = bytearray(newname)
