@@ -1,5 +1,5 @@
 import time
-import serial
+from machine import UART
 
 
 class ApcSmartUps:
@@ -21,7 +21,8 @@ class ApcSmartUps:
     # * we will be able to support other UPSes later. The actual
     # * command is obtained by reference to UPS_Cmd[CI_xxx]
     # */
-    APC_CMD_UPSMODEL = bytes.fromhex('01')  # Model number
+
+    APC_CMD_UPSMODEL = b''+chr(0x01) #bytes.fromhex('01')  # Model number
     APC_CMD_OLDFWREV = b'V'  # status function
     APC_CMD_STATUS = b'Q'  # line quality status
     APC_CMD_LQUAL = b'9'  # line quality status
@@ -61,7 +62,7 @@ class ApcSmartUps:
     APC_CMD_ATEMP = b't'  # Ambient temp
     APC_CMD_NOMOUTV = b'o'  # Nominal output voltage
     APC_CMD_BADBATTS = b'<'  # Number of bad battery packs
-    APC_CMD_EPROM = bytes.fromhex('1a')  # Valid eprom values
+    APC_CMD_EPROM = b''+chr(0x1a) #bytes.fromhex('1a')  # Valid eprom values
     APC_CMD_ST_TIME = b'd'  # hours since last self test
     APC_CMD_CYCLE_EPROM = b'-'  # Cycle programmable EPROM values
     APC_CMD_UPS_CAPS = b'a'  # Get UPS capabilities (command) string
@@ -92,12 +93,14 @@ class ApcSmartUps:
     SUCCESS = 0  # Function successfull */
     FAILURE = 1  # Function failure */
 
-    def __init__(self, port='/dev/ttyS)'):
+#    def __init__(self, port='/dev/ttyS)'):
+    def __init__(self):
         self.online = False
         self.stat = ''
         try:
-            self.serialport = serial.Serial(port=port, baudrate=2400, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0,
-                                            bytesize=8)
+#            self.serialport = serial.Serial(port=port, baudrate=2400, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0,
+#                                            bytesize=8)
+            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33)
             self.UPSlinkCheck()
             # self.stat = self.smartpool(APC_CMD_UPS_CAPS)
         except:
@@ -112,16 +115,20 @@ class ApcSmartUps:
         return self.online
 
     def close(self):
-        self.serialport.close()
+        #self.serialport.close()
+        pass
 
     def smartpool(self, cmd):  # read data without \r\n
         self.serialport.write(cmd)
+        print(cmd)
+        time.sleep(1)
         stat = self.serialport.readline()
+        print(stat)
         return stat[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
-        self.serialport.timeout = 4
-        self.serialport.timeout = 4
+        #self.serialport.timeout = 4
+        #self.serialport.timeout = 4
 
         self.serialport.write(cmd)
         oldname = self.serialport.readline()
@@ -129,7 +136,7 @@ class ApcSmartUps:
         print('set new name:  {}'.format(bytes))
         print("old name     : {}".format(oldname))
 
-        self.serialport.write_timeout = 4
+        #self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
         time.sleep(1)
         arr = bytearray(bytes)
@@ -141,8 +148,8 @@ class ApcSmartUps:
         print("Response: {}".format(response))
         if response != b'OK\r\n':
             print("\nError changing UPS name\n")
-        self.serialport.write_timeout = 1
-        self.serialport.timeout = 1
+        #self.serialport.write_timeout = 1
+        #self.serialport.timeout = 1
         self.serialport.write(cmd)
 
         return self.serialport.readline()
@@ -163,7 +170,7 @@ class ApcSmartUps:
         return self.change_ups_eeprom_item(self.APC_CMD_BATTDAT, newdate)
 
     def change_ups_name(self, newname):
-        self.serialport.timeout = 4
+        #self.serialport.timeout = 4
         newname = newname.encode().ljust(8, b' ')
 
         self.serialport.write(self.APC_CMD_IDEN)
@@ -172,7 +179,7 @@ class ApcSmartUps:
         print('set new name: {}'.format(newname))
         print("APC_CMD_IDEN: {}".format(oldname))
 
-        self.serialport.write_timeout = 4
+        #self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
         time.sleep(1)
         arr = bytearray(newname)
@@ -184,8 +191,8 @@ class ApcSmartUps:
         print("Response: {}".format(response))
         if response != 'OK':
             print("\nError changing UPS name\n")
-        self.serialport.write_timeout = 1
-        self.serialport.timeout = 1
+        #self.serialport.write_timeout = 1
+        #self.serialport.timeout = 1
         self.serialport.write(self.APC_CMD_IDEN)
 
         return self.serialport.readline()
