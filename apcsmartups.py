@@ -3,6 +3,9 @@ from machine import UART
 
 
 class ApcSmartUps:
+
+    SMART_DELAY_COMM_READ = 0.3     #delay sec
+    SMART_DELAY_COMM_WRITE = 1      #delay sec
     # bit values for APC UPS Status Byte (ups->Status)
     UPS_calibration = 0x00000001
     UPS_trim = 0x00000002
@@ -100,7 +103,8 @@ class ApcSmartUps:
         try:
 #            self.serialport = serial.Serial(port=port, baudrate=2400, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0,
 #                                            bytesize=8)
-            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33, timeout=4)
+            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33,
+                                   timeout=1000, timeout_char=1000)
             self.UPSlinkCheck()
             # self.stat = self.smartpool(APC_CMD_UPS_CAPS)
         except:
@@ -109,7 +113,7 @@ class ApcSmartUps:
     def UPSlinkCheck(self):
         self.online = False
         self.serialport.write(b'Y')  # write a string
-        time.sleep(0.3)
+        time.sleep(self.SMART_DELAY_COMM_READ)
         r = self.serialport.readline()
         if r == b'SM\r\n':
             self.online = True
@@ -123,7 +127,7 @@ class ApcSmartUps:
         #self.serialport.timeout = 1
         self.serialport.write(cmd)
         print(cmd)
-        time.sleep(0.3) #0.3            need > 0.2
+        time.sleep(self.SMART_DELAY_COMM_READ) #0.3            need > 0.2
         stat = self.serialport.readline()
         print(stat)
         return stat[:-2]  # drop final \r\n
@@ -133,6 +137,8 @@ class ApcSmartUps:
         #self.serialport.timeout = 4
 
         self.serialport.write(cmd)
+        time.sleep(self.SMART_DELAY_COMM_READ)
+
         oldname = self.serialport.readline()
 
         print('set new name:  {}'.format(bytes))
@@ -140,12 +146,13 @@ class ApcSmartUps:
 
         #self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
-        time.sleep(1)
+
+        time.sleep(self.SMART_DELAY_COMM_WRITE)
         arr = bytearray(bytes)
         for i in range(len(bytes)):
             self.serialport.write(arr[i:i + 1])
             print('write to ups {}'.format(arr[i:i + 1]))
-            time.sleep(1)
+            time.sleep(self.SMART_DELAY_COMM_WRITE)
         response = self.serialport.readline()
         print("Response: {}".format(response))
         if response != b'OK\r\n':
@@ -176,19 +183,20 @@ class ApcSmartUps:
         newname = newname.encode().ljust(8, b' ')
 
         self.serialport.write(self.APC_CMD_IDEN)
+        time.sleep(self.SMART_DELAY_COMM_READ)
         oldname = self.serialport.readline()
 
         print('set new name: {}'.format(newname))
         print("APC_CMD_IDEN: {}".format(oldname))
 
-        self.serialport.write_timeout = 4
+        #self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
-        time.sleep(1)
+        time.sleep(self.SMART_DELAY_COMM_WRITE)
         arr = bytearray(newname)
         for i in range(8):
             self.serialport.write(arr[i:i + 1])
             print('write to ups {}'.format(arr[i:i + 1]))
-            time.sleep(1)
+            time.sleep(self.SMART_DELAY_COMM_WRITE)
         response = self.serialport.readline()
         print("Response: {}".format(response))
         if response != 'OK':
@@ -196,7 +204,7 @@ class ApcSmartUps:
         #self.serialport.write_timeout = 1
         #self.serialport.timeout = 1
         self.serialport.write(self.APC_CMD_IDEN)
-
+        time.sleep(self.SMART_DELAY_COMM_READ)
         return self.serialport.readline()
 
     #    def read_volatile_data():
