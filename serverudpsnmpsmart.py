@@ -21,7 +21,7 @@ from serverudpsnmp import ServerUdpSnmp
 # https://networkupstools.org/protocols/apcsmart.html
 class ServerUdpSnmpSmart(ServerUdpSnmp):
 
-    def __init__(self, local_ip='', local_port=161, smart_port='/dev/ttyS0'):
+    def __init__(self, local_ip='', local_port=161, tx=32, rx=33):
         super().__init__(local_ip, local_port)
 
         self.add_oid(SNMP_OID_upsBasicIdentModel)# "Smart-UPS APC SC-420"
@@ -73,12 +73,12 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.add_oid(SNMP_OID_upsAdvTestCalibrationResults) #   = ASN1_INT, 2 #INTEGER: invalidCalibration(2)
         #self.add_oid(SNMP_OID_upsPhaseResetMaxMinValues) #      = ASN1_INT, 1 #INTEGER: none(1)
 
-        self.ups = apcsmartups.ApcSmartUps(smart_port)
+        self.ups = apcsmartups.ApcSmartUps(tx=tx, rx=rx)
     def _apc_number_string_to_int(self, val):
         res = int(val.decode().split(".")[0])
         return res
     def _apc_number_string_to_prec_int(self,val):
-        res =int(10*float(val).__round__(1))#parts[0]+parts[1]
+        res =int(round(10*float(val),1))#parts[0]+parts[1]
         print(val,'->',res)
         return res
 
@@ -92,7 +92,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         if oid == SNMP_OID_upsAdvIdentDateOfManufacture[0]:
             res = self.ups.smartpool(self.ups.APC_CMD_MANDAT)
         if oid == SNMP_OID_upsAdvIdentSerialNumber[0]:
-            res = self.ups.smartpool(self.ups.APC_CMD_SERNO).rjust(8)[0:8]
+            res = (self.ups.smartpool(self.ups.APC_CMD_SERNO)+b'        ')[0:8]
         if oid == SNMP_OID_upsBasicBatteryStatus[0]: #calculate response #unknown = 1, batteryNormal = 2, batteryLow = 3, batteryInFaultCondition = 4
             rstatus = 1
             try:
@@ -124,7 +124,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
 
         if oid == SNMP_OID_upsAdvBatteryReplaceIndicator[0]:
             status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
-            status = int(status.decode(), base=16)
+            status = int(status.decode(), 16)
             rstatus = 1
             if status & self.ups.UPS_replacebatt:
                 rstatus = 0

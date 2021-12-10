@@ -14,7 +14,7 @@ class ServerUdpSnmp(ServerUdp):
     #const starts with 'SNMP_OID_' is tuple, "sysDescr"
     #    ASN.1 sequence and SNMP derivatives
     #    #IMPORTANT manual order need for getnext over reflection
-    OIDS = collections.deque()# OrderedDict() #list of oids from mibs
+    OIDS = list()# OrderedDict() #list of oids from mibs
 #    SNMP_OID_sysDescr       = const2("1.3.6.1.2.1.1.1.0"),ASN1_OCTSTR
 #    SNMP_OID_sysObjectID    = const2("1.3.6.1.2.1.1.2.0"),ASN1_OID
     def add_oid(self, const_from_mibs):
