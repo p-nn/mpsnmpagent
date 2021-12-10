@@ -4,8 +4,8 @@ from machine import UART
 
 class ApcSmartUps:
 
-    SMART_DELAY_COMM_READ = 0.3     #delay sec
-    SMART_DELAY_COMM_WRITE = 1      #delay sec
+    SMART_DELAY_COMM_READ = 0 #0.3     #delay sec
+    SMART_DELAY_COMM_WRITE = 1 #1      #delay sec
     # bit values for APC UPS Status Byte (ups->Status)
     UPS_calibration = 0x00000001
     UPS_trim = 0x00000002
@@ -120,7 +120,7 @@ class ApcSmartUps:
         return self.online
 
     def close(self):
-        #self.serialport.close()
+        self.serialport.deinit()
         pass
 
     def smartpool(self, cmd):  # read data without \r\n
@@ -155,7 +155,7 @@ class ApcSmartUps:
             time.sleep(self.SMART_DELAY_COMM_WRITE)
         response = self.serialport.readline()
         print("Response: {}".format(response))
-        if response != b'OK\r\n':
+        if response != b'|OK\r\n':
             print("\nError changing UPS name\n")
         #self.serialport.write_timeout = 1
         #self.serialport.timeout = 1
@@ -164,7 +164,7 @@ class ApcSmartUps:
         return self.serialport.readline()
 
     def change_ups_name2(self, newname):
-        newname = newname.encode().ljust(8, b' ')
+        newname = (newname.encode()+b'        ')[0:8]
         return self.change_ups_eeprom_item(self.APC_CMD_IDEN, newname)
 
     def change_ups_battery_date(self, newdate):
@@ -174,13 +174,13 @@ class ApcSmartUps:
         # year = int(newdate[6:8])
         # res = month>0 & month<13 & day > 0 & day<32
         # print(str(newdate[0:2]),str(newdate[3:5]),str(newdate[6:8]),month,day,year,res)
-        newdate = newdate.encode().ljust(8, b' ')
+        newdate = (newdate.encode()+b'        ')[0:8]
         #            res = True
         return self.change_ups_eeprom_item(self.APC_CMD_BATTDAT, newdate)
 
     def change_ups_name(self, newname):
         #self.serialport.timeout = 4
-        newname = newname.encode().ljust(8, b' ')
+        newname = (newname.encode()+b'        ')[0:8]
 
         self.serialport.write(self.APC_CMD_IDEN)
         time.sleep(self.SMART_DELAY_COMM_READ)
