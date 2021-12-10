@@ -25,7 +25,7 @@ class ApcSmartUps:
     # * command is obtained by reference to UPS_Cmd[CI_xxx]
     # */
 
-    APC_CMD_UPSMODEL = b''+chr(0x01) #bytes.fromhex('01')  # Model number
+    APC_CMD_UPSMODEL = b'\x01' #bytes.fromhex('01')  # Model number
     APC_CMD_OLDFWREV = b'V'  # status function
     APC_CMD_STATUS = b'Q'  # line quality status
     APC_CMD_LQUAL = b'9'  # line quality status
@@ -65,7 +65,7 @@ class ApcSmartUps:
     APC_CMD_ATEMP = b't'  # Ambient temp
     APC_CMD_NOMOUTV = b'o'  # Nominal output voltage
     APC_CMD_BADBATTS = b'<'  # Number of bad battery packs
-    APC_CMD_EPROM = b''+chr(0x1a) #bytes.fromhex('1a')  # Valid eprom values
+    APC_CMD_EPROM = b'\x1a' #bytes.fromhex('1a')  # Valid eprom values
     APC_CMD_ST_TIME = b'd'  # hours since last self test
     APC_CMD_CYCLE_EPROM = b'-'  # Cycle programmable EPROM values
     APC_CMD_UPS_CAPS = b'a'  # Get UPS capabilities (command) string
@@ -79,31 +79,32 @@ class ApcSmartUps:
     # * extend lifetimes.
     # */
 
-    DISCHARGE = 'D'
+    DISCHARGE = b'D'
     CHARGE_LIM = 25
 
-    UPS_ENABLED = '?'
-    UPS_ON_BATT = '!'
-    UPS_ON_LINE = '$'
-    UPS_REPLACE_BATTERY = '#'
-    BATT_LOW = '%'
-    BATT_OK = '+'
-    UPS_EPROM_CHANGE = '|'
-    UPS_TRAILOR = ':'
-    UPS_LF = '\n'
-    UPS_CR = '\r'
+    UPS_ENABLED = b'?'
+    UPS_ON_BATT = b'!'
+    UPS_ON_LINE = b'$'
+    UPS_REPLACE_BATTERY = b'#'
+    BATT_LOW = b'%'
+    BATT_OK = b'+'
+    UPS_EPROM_CHANGE = b'|'
+    UPS_TRAILOR = b':'
+    UPS_LF = b'\n'
+    UPS_CR = b'\r'
 
     SUCCESS = 0  # Function successfull */
     FAILURE = 1  # Function failure */
 
-#    def __init__(self, port='/dev/ttyS)'):
-    def __init__(self):
+    alert = b' '
+
+    def __init__(self, tx=32, rx=33):
         self.online = False
         self.stat = ''
         try:
 #            self.serialport = serial.Serial(port=port, baudrate=2400, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0,
 #                                            bytesize=8)
-            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=32, rx=33,
+            self.serialport = UART(1, baudrate=2400, bits=8, parity=None, stop=1, tx=tx, rx=rx,
                                    timeout=1000, timeout_char=1000)
             self.UPSlinkCheck()
             # self.stat = self.smartpool(APC_CMD_UPS_CAPS)
@@ -121,7 +122,19 @@ class ApcSmartUps:
 
     def close(self):
         self.serialport.deinit()
-        pass
+
+    def _extract_flags(self, response):
+        # print(response[0:1])
+        n = 0
+        for i in range(len(response) - 1):
+            if response[i:i + 1] in (
+                    self.UPS_ON_BATT, self.UPS_ON_LINE, self.UPS_REPLACE_BATTERY, self.UPS_ENABLED,
+                    self.UPS_REPLACE_BATTERY,
+                    self.BATT_LOW, self.BATT_OK, self.UPS_EPROM_CHANGE):
+                # print('=',response[i:i+1])
+                n = i + 1
+                break
+        return response[n:], response[:n]
 
     def smartpool(self, cmd):  # read data without \r\n
         #self.serialport.timeout = 1
@@ -129,8 +142,12 @@ class ApcSmartUps:
         print(cmd)
         time.sleep(self.SMART_DELAY_COMM_READ) #0.3            need > 0.2
         stat = self.serialport.readline()
-        print(stat)
-        return stat[:-2]  # drop final \r\n
+        stat2, self.alert = self._extract_flags(stat)
+        if len(self.alert) > 0:
+            print('##############################################################################', self.alert)
+        print('smartpool:', cmd, '->', stat, '->', stat2)
+
+        return stat2[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
         #self.serialport.timeout = 4
@@ -155,7 +172,7 @@ class ApcSmartUps:
             time.sleep(self.SMART_DELAY_COMM_WRITE)
         response = self.serialport.readline()
         print("Response: {}".format(response))
-        if response != b'|OK\r\n':
+        if response != b'OK\r\n':
             print("\nError changing UPS name\n")
         #self.serialport.write_timeout = 1
         #self.serialport.timeout = 1

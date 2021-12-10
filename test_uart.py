@@ -2,9 +2,9 @@
 import apcsmartups
 import time;
 
-ups = apcsmartups.ApcSmartUps()
+ups = apcsmartups.ApcSmartUps(tx=32, rx=33)
 if ups.UPSlinkCheck():
-    ups.testUps()
+    print(ups.smartpool(ups.APC_CMD_IDEN))
 #    s = ups.smartpool(ups.APC_CMD_UPSMODEL)
 #    print(s)
 
