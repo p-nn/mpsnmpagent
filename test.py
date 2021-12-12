@@ -46,7 +46,7 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
 
 #s = ServerUdpSnmpCustom('', 7777)
 
-s = ServerUdpSnmpSmart('', 7777, tx=32, rx=33)#
+s = ServerUdpSnmpSmart('', 161, tx=32, rx=33)#
 s.start()
 #sleep(90)
 #while(True):
