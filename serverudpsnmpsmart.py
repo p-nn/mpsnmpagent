@@ -97,7 +97,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             rstatus = 1
             try:
                 status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
-                status = int(status.decode(), base=16)
+                status = int(status.decode(), 16)
                 rstatus = 2
                 if status & self.ups.UPS_battlow:
                     rstatus = 3
@@ -192,7 +192,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             rstatus = 1
             try:
                 status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
-                status = int(status.decode(), base=16)
+                status = int(status.decode(),16)
                 if status & self.ups.UPS_online:
                     rstatus = 2
                 if status & self.ups.UPS_onbatt:
