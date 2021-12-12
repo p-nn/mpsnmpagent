@@ -48,12 +48,12 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
 
 s = ServerUdpSnmpSmart('', 7777, tx=32, rx=33)#
 s.start()
-sleep(90)
+#sleep(90)
 #while(True):
 #    pass
-s.running = False
-print("We stop ... ")
-sleep(1)
+#s.running = False
+#print("We stop ... ")
+#sleep(1)
 #sys.exit()
 
 
