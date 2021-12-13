@@ -15,7 +15,6 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvControlBypassSwitch, SNMP_OID_upsAdvTestDiagnostics, SNMP_OID_upsAdvTestRuntimeCalibration, \
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
     SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate
-import gc
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 # https://networkupstools.org/protocols/apcsmart.html
@@ -83,8 +82,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         return res
 
     def handle_get(self, oid, community):
-        gc.collect()
-        print("handle" , oid)
+#        print("handle" , oid)
+#        print('mem_free',)
         res = None
         if oid == SNMP_OID_upsBasicIdentModel[0]:
             res = self.ups.smartpool(self.ups.APC_CMD_UPSMODEL)
@@ -261,11 +260,10 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         if res is None: #from constants _SNMP_OIDs or SNMP_ERR_NOSUCHNAME
             res = super().handle_get(oid, community)
             #print(oid, res)
-        gc.collect()
         return res
 
     def handle_set(self, oid, community, value):
-        gc.collect()
+
         print('handle_set0',oid, community, value)
         verifed = None
         if community == 'private':
@@ -275,5 +273,4 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
                 self.ups.change_ups_battery_date(value)
                 verifed =  value#self.handle_get(oid,community)
                 #print('handle_set3',verifed)
-        gc.collect()
         return verifed

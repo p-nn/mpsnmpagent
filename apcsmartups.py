@@ -6,7 +6,7 @@ from machine import UART
 # https://networkupstools.org/protocols/apcsmart.html
 class ApcSmartUps:
 
-    SMART_DELAY_COMM_READ = 0.1 #0.3     #delay sec
+    SMART_DELAY_COMM_READ = 0 #0.3     #delay sec
     SMART_DELAY_COMM_WRITE = 1 #1      #delay sec
     # bit values for APC UPS Status Byte (ups->Status)
     UPS_calibration = 0x00000001
@@ -127,16 +127,19 @@ class ApcSmartUps:
 
     def _extract_flags(self, response):
         # print(response[0:1])
-        n = 0
-        for i in range(len(response) - 1):
-            if response[i:i + 1] in (
-                    self.UPS_ON_BATT, self.UPS_ON_LINE, self.UPS_REPLACE_BATTERY, self.UPS_ENABLED,
-                    self.UPS_REPLACE_BATTERY,
-                    self.BATT_LOW, self.BATT_OK, self.UPS_EPROM_CHANGE):
-                # print('=',response[i:i+1])
-                n = i + 1
-                break
-        return response[n:], response[:n]
+        if response is None:
+            return (None, None)
+        else:
+            n = 0
+            for i in range(len(response) - 1):
+                if response[i:i + 1] in (
+                        self.UPS_ON_BATT, self.UPS_ON_LINE, self.UPS_REPLACE_BATTERY, self.UPS_ENABLED,
+                        self.UPS_REPLACE_BATTERY,
+                        self.BATT_LOW, self.BATT_OK, self.UPS_EPROM_CHANGE):
+                    # print('=',response[i:i+1])
+                    n = i + 1
+                    break
+            return response[n:], response[:n]
 
     def smartpool(self, cmd):  # read data without \r\n
         #self.serialport.timeout = 1
@@ -145,7 +148,7 @@ class ApcSmartUps:
         time.sleep(self.SMART_DELAY_COMM_READ) #0.3            need > 0.2
         stat = self.serialport.readline()
         stat2, self.alert = self._extract_flags(stat)
-        if len(self.alert) > 0:
+        if not(self.alert is None) and len(self.alert) > 0:
             print('##############################################################################', self.alert)
         #print('smartpool:', cmd, '->', stat, '->', stat2)
 
