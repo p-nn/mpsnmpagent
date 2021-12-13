@@ -147,7 +147,7 @@ class ApcSmartUps:
         stat2, self.alert = self._extract_flags(stat)
         if len(self.alert) > 0:
             print('##############################################################################', self.alert)
-        print('smartpool:', cmd, '->', stat, '->', stat2)
+        #print('smartpool:', cmd, '->', stat, '->', stat2)
 
         return stat2[:-2]  # drop final \r\n
 
