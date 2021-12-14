@@ -55,7 +55,7 @@ class ServerUdpSnmp(ServerUdp):
         gc.collect()
         gc.mem_free()
         time5 = time.ticks_ms()
-        print('time_ms',time.ticks_diff(time1, time0),time.ticks_diff(time2, time0),time.ticks_diff(time3, time0),
+        print('time_ms',time0,time.ticks_diff(time1, time0),time.ticks_diff(time2, time0),time.ticks_diff(time3, time0),
               time.ticks_diff(time4, time0),time.ticks_diff(time5, time0))
         return True
 
