@@ -5,6 +5,7 @@ from usnmp import SNMP_GETREQUEST, SNMP_GETNEXTREQUEST, SNMP_SETREQUEST, SNMP_GE
 from usnmp_codec import ASN1_NULL, ASN1_OID, SNMP_ERR_NOERROR, SNMP_ERR_BADVALUE
 # https://github.com/PinkInk/upylib/tree/master/usnmp
 import gc
+import time
 def const2(v):
    return v
 
@@ -22,10 +23,14 @@ class ServerUdpSnmp(ServerUdp):
 
 
     def handle_udp(self, bytes):
+        time0 = time.ticks_ms() # get millisecond counter
         message = bytes[0]
         address = bytes[1]
+
         greq = SnmpPacket(message)
+        time1 = time.ticks_ms()
         gresp = SnmpPacket(type=SNMP_GETRESPONSE, community=greq.community, id=greq.id)
+        time2 = time.ticks_ms()
         for oid in greq.varbinds:
 #            print(oid, " ", greq.varbinds[oid])
             if greq.type==SNMP_GETREQUEST:
@@ -43,11 +48,15 @@ class ServerUdpSnmp(ServerUdp):
 #        print("sending:{}".format(gresp))
 #        for o in gresp.varbinds:
 #            print("sending varbinds:", o, gresp.varbinds[o])
+        time3 = time.ticks_ms()
         bytesToSend = gresp.tobytes()
         self.socket.sendto(bytesToSend, address)
+        time4 = time.ticks_ms()
         gc.collect()
         gc.mem_free()
-        #print(time.time())
+        time5 = time.ticks_ms()
+        print('time_ms',time.ticks_diff(time1, time0),time.ticks_diff(time2, time0),time.ticks_diff(time3, time0),
+              time.ticks_diff(time4, time0),time.ticks_diff(time5, time0))
         return True
 
     def handle_get(self, oid, community):
