@@ -23,43 +23,27 @@ class ServerUdpSnmp(ServerUdp):
 
 
     def handle_udp(self, bytes):
-        time0 = time.ticks_ms() # get millisecond counter
         message = bytes[0]
         address = bytes[1]
 
         greq = SnmpPacket(message)
-        time1 = time.ticks_ms()
         gresp = SnmpPacket(type=SNMP_GETRESPONSE, community=greq.community, id=greq.id)
-        time2 = time.ticks_ms()
         for oid in greq.varbinds:
-#            print(oid, " ", greq.varbinds[oid])
+            print(oid,address)
             if greq.type==SNMP_GETREQUEST:
                 self._handle_get(oid,gresp)
             if greq.type==SNMP_GETNEXTREQUEST:
                 self._handle_get_next(oid,gresp)
             if greq.type==SNMP_SETREQUEST:
                 self._handle_set(oid,greq, gresp)
-
-
-#        print("Message from Client:{}".format(greq.type))
-#        print("Client IP Address:{}".format(address))
-        # Sending a reply to client
-
-#        print("sending:{}".format(gresp))
-#        for o in gresp.varbinds:
-#            print("sending varbinds:", o, gresp.varbinds[o])
-        time3 = time.ticks_ms()
         bytesToSend = gresp.tobytes()
         self.socket.sendto(bytesToSend, address)
         time4 = time.ticks_ms()
         gc.collect()
         gc.mem_free()
-        time5 = time.ticks_ms()
-        print('time_ms',time0,time.ticks_diff(time1, time0),time.ticks_diff(time2, time0),time.ticks_diff(time3, time0),
-              time.ticks_diff(time4, time0),time.ticks_diff(time5, time0))
         return True
 
-    def handle_get(self, oid, community):
+    def handle_get(self, obj_oid, community):
         return None
 
     def _handle_get(self, oid, gresp):#usnmp.SNMP_GETREQUEST
@@ -70,13 +54,13 @@ class ServerUdpSnmp(ServerUdp):
                 if attr[0] == oid: #from constants
                     #print("handle_get: ",attr[0], "=", attr[1])
                     #res =, self.NVS[attr_value[0]], SNMP_ERR_NOERROR
-                    res = attr[1], self.handle_get(oid, gresp.community), SNMP_ERR_NOERROR # break
+                    res = attr[1], self.handle_get(attr, gresp.community), SNMP_ERR_NOERROR # break
         if res == None:
             res = (ASN1_NULL, None, SNMP_ERR_NOSUCHNAME)
         gresp.varbinds[oid] = res[0], res[1]
         gresp.err_status = res[2]
 
-    def handle_set(self, oid, community, value):
+    def handle_set(self, obj_oid, community, value):
 #        print(oid, community, value)
         value_verifed = value
         return value_verifed
@@ -90,7 +74,7 @@ class ServerUdpSnmp(ServerUdp):
             if attr[0] == oid:
                #print("types:",attr_value[1],vtype)
                 if attr[1] == vtype:
-                    res = (vtype, self.handle_set(oid,gresp.community,greq.varbinds[oid][1]), SNMP_ERR_NOERROR)
+                    res = (vtype, self.handle_set(attr,gresp.community,greq.varbinds[oid][1]), SNMP_ERR_NOERROR)
                 else:
                     #print("wrong type:",attr_value[0],"<>",vtype),
                     res = (vtype, value, SNMP_ERR_BADVALUE)

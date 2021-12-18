@@ -73,6 +73,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         #self.add_oid(SNMP_OID_upsPhaseResetMaxMinValues) #      = ASN1_INT, 1 #INTEGER: none(1)
 
         self.ups = apcsmartups.ApcSmartUps(tx=tx, rx=rx)
+
     def _apc_number_string_to_int(self, val):
         res = int(val.decode().split(".")[0])
         return res
@@ -85,15 +86,15 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
 #        print("handle" , oid)
 #        print('mem_free',)
         res = None
-        if oid == SNMP_OID_upsBasicIdentModel[0]:
+        if oid == SNMP_OID_upsBasicIdentModel:
             res = self.ups.smartpool(self.ups.APC_CMD_UPSMODEL)
-        if oid == SNMP_OID_upsAdvIdentFirmwareRevision[0]:
+        if oid == SNMP_OID_upsAdvIdentFirmwareRevision:
             res = self.ups.smartpool(self.ups.APC_CMD_REVNO)
-        if oid == SNMP_OID_upsAdvIdentDateOfManufacture[0]:
+        if oid == SNMP_OID_upsAdvIdentDateOfManufacture:
             res = self.ups.smartpool(self.ups.APC_CMD_MANDAT)
-        if oid == SNMP_OID_upsAdvIdentSerialNumber[0]:
+        if oid == SNMP_OID_upsAdvIdentSerialNumber:
             res = (self.ups.smartpool(self.ups.APC_CMD_SERNO)+b'        ')[0:8]
-        if oid == SNMP_OID_upsBasicBatteryStatus[0]: #calculate response #unknown = 1, batteryNormal = 2, batteryLow = 3, batteryInFaultCondition = 4
+        if oid == SNMP_OID_upsBasicBatteryStatus: #calculate response #unknown = 1, batteryNormal = 2, batteryLow = 3, batteryInFaultCondition = 4
             rstatus = 1
             try:
                 status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
@@ -106,59 +107,59 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             except:
                 pass
             res = rstatus
-        if oid == SNMP_OID_upsBasicBatteryLastReplaceDate[0]:
+        if oid == SNMP_OID_upsBasicBatteryLastReplaceDate:
             res = self.ups.smartpool(self.ups.APC_CMD_BATTDAT)
 
-        if oid == SNMP_OID_upsAdvBatteryCapacity[0]:
+        if oid == SNMP_OID_upsAdvBatteryCapacity:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_BATTLEV),)
 
-        if oid == SNMP_OID_upsAdvBatteryTemperature[0]:
+        if oid == SNMP_OID_upsAdvBatteryTemperature:
             val = self.ups.smartpool(self.ups.APC_CMD_ITEMP)
             val2 = 0
             if val.isdigit():
                 val2 = val.decode()
             res = val2
 
-        if oid == SNMP_OID_upsAdvBatteryRunTimeRemaining[0]:
+        if oid == SNMP_OID_upsAdvBatteryRunTimeRemaining:
             res = int(self.ups.smartpool(self.ups.APC_CMD_RUNTIM).decode().split(':')[0])*6000
 
-        if oid == SNMP_OID_upsAdvBatteryReplaceIndicator[0]:
+        if oid == SNMP_OID_upsAdvBatteryReplaceIndicator:
             status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
             status = int(status.decode(), 16)
             rstatus = 1
             if status & self.ups.UPS_replacebatt:
                 rstatus = 0
             res = rstatus
-        if oid==SNMP_OID_upsAdvBatteryNominalVoltage[0]:
+        if oid==SNMP_OID_upsAdvBatteryNominalVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_NOMBATTV))
 
-        if oid==SNMP_OID_upsAdvBatteryActualVoltage[0]:
+        if oid==SNMP_OID_upsAdvBatteryActualVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VBATT))
 
-        if oid==SNMP_OID_upsHighPrecBatteryCapacity[0]:
+        if oid==SNMP_OID_upsHighPrecBatteryCapacity:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_BATTLEV))
 
-        if oid == SNMP_OID_upsHighPrecBatteryTemperature[0]:
+        if oid == SNMP_OID_upsHighPrecBatteryTemperature:
             val2 = 0
             val = self.ups.smartpool(self.ups.APC_CMD_ITEMP)
             if val.isdigit():
                 val2 = val.decode()
             res = 10*val2
-        if oid == SNMP_OID_upsHighPrecBatteryNominalVoltage[0]:
+        if oid == SNMP_OID_upsHighPrecBatteryNominalVoltage:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_NOMBATTV))
 
-        if oid == SNMP_OID_upsHighPrecBatteryActualVoltage[0]:
+        if oid == SNMP_OID_upsHighPrecBatteryActualVoltage:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_VBATT))
 
-        if oid == SNMP_OID_upsAdvInputLineVoltage[0]:
+        if oid == SNMP_OID_upsAdvInputLineVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VLINE))
-        if oid == SNMP_OID_upsAdvInputMaxLineVoltage[0]:
+        if oid == SNMP_OID_upsAdvInputMaxLineVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VMAX))
-        if oid == SNMP_OID_upsAdvInputMinLineVoltage[0]:
+        if oid == SNMP_OID_upsAdvInputMinLineVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VMIN))
-        if oid == SNMP_OID_upsAdvInputFrequency[0]:
+        if oid == SNMP_OID_upsAdvInputFrequency:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_FREQ))
-        if oid == SNMP_OID_upsAdvInputLineFailCause[0]:
+        if oid == SNMP_OID_upsAdvInputLineFailCause:
             res = None #XFER_UNKNOWN;
             status = self.ups.smartpool(self.ups.APC_CMD_WHY_BATT)
             if status == b'N': #XFER_NA;  -> None
@@ -177,18 +178,18 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
                 res =9
             if status == b'S': # return XFER_SELFTEST; -> selfTest(9),"Automatic or explicit self test"
                 res = 9
-        if oid == SNMP_OID_upsHighPrecInputLineVoltage[0]:
+        if oid == SNMP_OID_upsHighPrecInputLineVoltage:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_VLINE))
-        if oid == SNMP_OID_upsHighPrecInputMaxLineVoltage[0]:
+        if oid == SNMP_OID_upsHighPrecInputMaxLineVoltage:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_VMAX))
-        if oid == SNMP_OID_upsHighPrecInputMinLineVoltage[0]:
+        if oid == SNMP_OID_upsHighPrecInputMinLineVoltage:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_VMIN))
-        if oid == SNMP_OID_upsHighPrecInputFrequency[0]:
+        if oid == SNMP_OID_upsHighPrecInputFrequency:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_FREQ))
 
     #      unknown(1), onLine(2), onBattery(3), onSmartBoost(4), timedSleeping(5), softwareBypass(6), off(7), rebooting(8),
     #      switchedBypass(9), hardwareFailureBypass(10),  sleepingUntilPowerReturn(11),   onSmartTrim(12)
-        if oid == SNMP_OID_upsBasicOutputStatus[0]:
+        if oid == SNMP_OID_upsBasicOutputStatus:
             rstatus = 1
             try:
                 status = self.ups.smartpool(self.ups.APC_CMD_STATUS)
@@ -204,19 +205,19 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             except:
                 pass
             res = rstatus
-        if oid == SNMP_OID_upsAdvOutputLoad[0]:
+        if oid == SNMP_OID_upsAdvOutputLoad:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_LOAD))
-        if oid == SNMP_OID_upsHighPrecOutputLoad[0]:
+        if oid == SNMP_OID_upsHighPrecOutputLoad:
             res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_LOAD))
-        if oid == SNMP_OID_upsAdvConfigRatedOutputVoltage[0]:
+        if oid == SNMP_OID_upsAdvConfigRatedOutputVoltage:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VOUT))
-        if oid == SNMP_OID_upsAdvConfigHighTransferVolt[0]:
+        if oid == SNMP_OID_upsAdvConfigHighTransferVolt:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_HTRANS))
-        if oid == SNMP_OID_upsAdvConfigLowTransferVolt[0]:
+        if oid == SNMP_OID_upsAdvConfigLowTransferVolt:
             res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_LTRANS))
-        if oid == SNMP_OID_upsAdvConfigMinReturnCapacity[0]:
+        if oid == SNMP_OID_upsAdvConfigMinReturnCapacity:
             res = int(self.ups.smartpool(self.ups.APC_CMD_RETPCT))
-        if oid == SNMP_OID_upsAdvConfigSensitivity[0]: #0 # 'A': Auto Adjust, 'L': Low, 'M': Medium, 'H': High -> auto(1), low(2), medium(3), high(4)
+        if oid == SNMP_OID_upsAdvConfigSensitivity: #0 # 'A': Auto Adjust, 'L': Low, 'M': Medium, 'H': High -> auto(1), low(2), medium(3), high(4)
             val = self.ups.smartpool(self.ups.APC_CMD_SENS)
             if val == b'A':
                 res = 1
@@ -226,34 +227,34 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
                 res = 3
             if val == b'H':
                 res = 4
-        if oid == SNMP_OID_upsAdvConfigLowBatteryRunTime[0]:
+        if oid == SNMP_OID_upsAdvConfigLowBatteryRunTime:
             res = 6000*int(self.ups.smartpool(self.ups.APC_CMD_DLBATT))
 
-        if oid == SNMP_OID_upsAdvConfigReturnDelay[0]:
+        if oid == SNMP_OID_upsAdvConfigReturnDelay:
             res = 100*int(self.ups.smartpool(self.ups.APC_CMD_DWAKE))
 
-        if oid == SNMP_OID_upsAdvConfigShutoffDelay[0]:
+        if oid == SNMP_OID_upsAdvConfigShutoffDelay:
             res = 100*int(self.ups.smartpool(self.ups.APC_CMD_DSHUTD))
 
-        if oid == SNMP_OID_upsBasicControlConserveBattery[0]:
+        if oid == SNMP_OID_upsBasicControlConserveBattery:
             res = 1 # noTurnOffUps(1) by MIB for read
 
-        if oid == SNMP_OID_upsAdvControlUpsOff[0]:
+        if oid == SNMP_OID_upsAdvControlUpsOff:
             res = 1 # noTurnUpsOff(1) by MIB for read
 
-        if oid == SNMP_OID_upsAdvControlSimulatePowerFail[0]:
+        if oid == SNMP_OID_upsAdvControlSimulatePowerFail:
             res = 1 # noSimulatePowerFailure(1) by MIB for read
-        if oid == SNMP_OID_upsAdvControlFlashAndBeep[0]:
+        if oid == SNMP_OID_upsAdvControlFlashAndBeep:
             res = 1 # noFlashAndBeep(1) by MIB for read
-        if oid == SNMP_OID_upsAdvControlTurnOnUPS[0]:
+        if oid == SNMP_OID_upsAdvControlTurnOnUPS:
             res = 1 # noTurnOnUPS(1) by MIB for read
-        if oid == SNMP_OID_upsAdvControlBypassSwitch[0]:
+        if oid == SNMP_OID_upsAdvControlBypassSwitch:
             res = 1 # noBypassSwitch(1) by MIB for read
-        if oid == SNMP_OID_upsAdvTestDiagnostics[0]:
+        if oid == SNMP_OID_upsAdvTestDiagnostics:
             res = 1 # noTestDiagnostics(1) by MIB for read
-        if oid == SNMP_OID_upsAdvTestRuntimeCalibration[0]:
+        if oid == SNMP_OID_upsAdvTestRuntimeCalibration:
             res = 1 # noPerformCalibration(1) by MIB for read
-        if oid == SNMP_OID_upsAdvTestCalibrationResults[0]:
+        if oid == SNMP_OID_upsAdvTestCalibrationResults:
             res = 2 # invalidCalibration(2) by MIB for read
 
             #print("get:oid {} is temperatureC".format(oid))
@@ -268,7 +269,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         verifed = None
         if community == 'private':
             #print('handle_set1')
-            if oid == SNMP_OID_upsBasicBatteryLastReplaceDate[0]:
+            if oid == SNMP_OID_upsBasicBatteryLastReplaceDate:
                 #print('handle_set2',oid,value)
                 self.ups.change_ups_battery_date(value)
                 verifed =  value#self.handle_get(oid,community)

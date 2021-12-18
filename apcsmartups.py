@@ -99,7 +99,8 @@ class ApcSmartUps:
     FAILURE = 1  # Function failure */
 
     alert = b' '
-
+    cache = {}
+    time_cache = 5
     def __init__(self, tx=32, rx=33):
         self.online = False
         self.stat = ''
@@ -142,33 +143,32 @@ class ApcSmartUps:
             return response[n:], response[:n]
 
     def smartpool(self, cmd):  # read data without \r\n
-        #self.serialport.timeout = 1
-        self.serialport.write(cmd)
         print(cmd)
-        time.sleep(self.SMART_DELAY_COMM_READ) #0.3            need > 0.2
-        stat = self.serialport.readline()
-        stat2, self.alert = self._extract_flags(stat)
-        if not(self.alert is None) and len(self.alert) > 0:
-            print('##############################################################################', self.alert)
-        #print('smartpool:', cmd, '->', stat, '->', stat2)
-
-        return stat2[:-2]  # drop final \r\n
+        t = time.time()
+        if cmd in self.cache and (t-self.cache[cmd][0])<self.time_cache: #time.ticks_diff()
+            print('cached', self.cache[cmd][1], t-self.cache[cmd][0], t)
+            return self.cache[cmd][1]
+        else:
+            self.serialport.write(cmd)
+            stat = self.serialport.readline()
+            stat2, self.alert = self._extract_flags(stat)
+            if not(self.alert is None) and len(self.alert) > 0:
+                print('##############################################################################', self.alert)
+                self.cache = {}
+            #print('stat2',stat2)
+            if stat2 is None:
+                return None
+            else:
+                self.cache[cmd] =(t, stat2[:-2])
+                return stat2[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
-        #self.serialport.timeout = 4
-        #self.serialport.timeout = 4
-
         self.serialport.write(cmd)
         time.sleep(self.SMART_DELAY_COMM_READ)
-
         oldname = self.serialport.readline()
-
         print('set new name:  {}'.format(bytes))
         print("old name     : {}".format(oldname))
-
-        #self.serialport.write_timeout = 4
         self.serialport.write(self.APC_CMD_CYCLE_EPROM)
-
         time.sleep(self.SMART_DELAY_COMM_WRITE)
         arr = bytearray(bytes)
         for i in range(len(bytes)):
