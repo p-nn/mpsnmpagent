@@ -139,7 +139,8 @@ class ApcSmartUps:
                         self.BATT_LOW, self.BATT_OK, self.UPS_EPROM_CHANGE):
                     # print('=',response[i:i+1])
                     n = i + 1
-                    break
+                else:
+		    break
             return response[n:], response[:n]
 
     def smartpool(self, cmd):  # read data without \r\n
@@ -150,17 +151,23 @@ class ApcSmartUps:
             return self.cache[cmd][1]
         else:
             self.serialport.write(cmd)
-            stat = self.serialport.readline()
-            stat2, self.alert = self._extract_flags(stat)
-            if not(self.alert is None) and len(self.alert) > 0:
-                print('##############################################################################', self.alert)
-                self.cache = {}
-            #print('stat2',stat2)
+            try_count = 3
+            stat2 = None
+            while (stat2 is None) and (try_count > 0):
+                try_count = try_count - 1
+                if try_count<2:
+                    print('smartpool retry',try_count)
+                stat = self.serialport.readline()
+                stat2, self.alert = self._extract_flags(stat)
+                if not(self.alert is None) and len(self.alert) > 0:
+                    print('##############################################################################', self.alert)
+                    self.cache = {}
+                #print('stat2',stat2)
             if stat2 is None:
-                return None
+               return None
             else:
-                self.cache[cmd] =(t, stat2[:-2])
-                return stat2[:-2]  # drop final \r\n
+               self.cache[cmd] =(t, stat2[:-2])
+               return stat2[:-2]  # drop final \r\n
 
     def change_ups_eeprom_item(self, cmd, bytes):
         self.serialport.write(cmd)

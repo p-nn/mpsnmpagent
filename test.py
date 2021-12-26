@@ -28,7 +28,7 @@ class ServerUdpSnmpCustom(ServerUdpSnmp):
             res = "SuperDevice"
             print("get:oid {} is sysDescr".format(oid))
         if oid == mibs.SNMP_OID_sysObjectID[0]: #calculate response
-            res = "1.3.6.1.4.1.318.1.3.1"
+            res = "1.3.6.1.4.1.318.1.3.2"
             print("get:oid {} is sysObjectID".format(oid))
         if oid == mibs.SNMP_OID_sysName[0]: #calculate response
             res = "SuperDeviceName"
