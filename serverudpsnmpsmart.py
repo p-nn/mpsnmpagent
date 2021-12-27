@@ -15,7 +15,7 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvControlBypassSwitch, SNMP_OID_upsAdvTestDiagnostics, SNMP_OID_upsAdvTestRuntimeCalibration, \
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
     SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate, SNMP_OID_sysObjectID, \
-    SNMP_OID_upsHighPrecOutputCurrent
+    SNMP_OID_upsHighPrecOutputCurrent, SNMP_OID_upsPhaseInputMinVoltage, SNMP_OID_upsPhaseOutputMaxCurrent
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 # https://networkupstools.org/protocols/apcsmart.html
@@ -72,6 +72,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.add_oid(SNMP_OID_upsAdvTestDiagnostics) #          = ASN1_INT, 1 #INTEGER: noTestDiagnostics(1)
         self.add_oid(SNMP_OID_upsAdvTestRuntimeCalibration) #   = ASN1_INT, 1 #INTEGER: noPerformCalibration(1)
         self.add_oid(SNMP_OID_upsAdvTestCalibrationResults) #   = ASN1_INT, 2 #INTEGER: invalidCalibration(2)
+        self.add_oid(SNMP_OID_upsPhaseInputMinVoltage)# -1
+        self.add_oid(SNMP_OID_upsPhaseOutputMaxCurrent)# -1
         #self.add_oid(SNMP_OID_upsPhaseResetMaxMinValues) #      = ASN1_INT, 1 #INTEGER: none(1)
 
         self.ups = apcsmartups.ApcSmartUps(tx=tx, rx=rx)
@@ -263,6 +265,10 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
                 res = 1 # noPerformCalibration(1) by MIB for read
             if oid == SNMP_OID_upsAdvTestCalibrationResults:
                 res = 2 # invalidCalibration(2) by MIB for read
+            if oid == SNMP_OID_upsPhaseInputMinVoltage:
+                res = 0
+            if oid == SNMP_OID_upsPhaseOutputMaxCurrent:
+                res = 0
         except:
             pass
             #print("get:oid {} is temperatureC".format(oid))

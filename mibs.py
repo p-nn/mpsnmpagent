@@ -75,3 +75,5 @@ SNMP_OID_upsAdvTestRuntimeCalibration = const2(
 SNMP_OID_upsAdvTestCalibrationResults = const2(
     "1.3.6.1.4.1.318.1.1.1.7.2.6.0"), ASN1_INT  # , 2 #INTEGER: invalidCalibration(2)
 SNMP_OID_upsPhaseResetMaxMinValues = const2("1.3.6.1.4.1.318.1.1.1.9.1.1.0"), ASN1_INT  # , 1 #INTEGER: none(1)
+SNMP_OID_upsPhaseInputMinVoltage = const2("1.3.6.1.4.1.318.1.1.1.9.2.3.1.5.1.1.3"), ASN1_INT #-1
+SNMP_OID_upsPhaseOutputMaxCurrent = const2("1.3.6.1.4.1.318.1.1.1.9.3.3.1.5.1.1.3"), ASN1_INT #-1
