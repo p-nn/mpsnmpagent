@@ -101,6 +101,11 @@ class ApcSmartUps:
     alert = b' '
     cache = {}
     time_cache = 5
+    DYNAMIC_VALUES = (APC_CMD_STATUS,APC_CMD_LQUAL,APC_CMD_VLINE,APC_CMD_VMAX,
+                      APC_CMD_VMIN,APC_CMD_VOUT,APC_CMD_BATTLEV,APC_CMD_VBATT,
+                      APC_CMD_LOAD,APC_CMD_FREQ,APC_CMD_RUNTIM,APC_CMD_ITEMP,
+                      APC_CMD_ATEMP,APC_CMD_ST_TIME
+                      )
     def __init__(self, tx=32, rx=33):
         self.online = False
         self.stat = ''
@@ -140,13 +145,16 @@ class ApcSmartUps:
                     # print('=',response[i:i+1])
                     n = i + 1
                 else:
-		    break
+                    break
             return response[n:], response[:n]
 
     def smartpool(self, cmd):  # read data without \r\n
         print(cmd)
         t = time.time()
-        if cmd in self.cache and (t-self.cache[cmd][0])<self.time_cache: #time.ticks_diff()
+
+        if cmd in self.cache and \
+                (not(cmd in self.DYNAMIC_VALUES) or
+                 (cmd in self.DYNAMIC_VALUES and (t-self.cache[cmd][0])<self.time_cache)): #time.ticks_diff()
             print('cached', self.cache[cmd][1], t-self.cache[cmd][0], t)
             return self.cache[cmd][1]
         else:
