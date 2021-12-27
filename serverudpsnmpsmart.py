@@ -14,7 +14,8 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvControlSimulatePowerFail, SNMP_OID_upsAdvControlFlashAndBeep, SNMP_OID_upsAdvControlTurnOnUPS, \
     SNMP_OID_upsAdvControlBypassSwitch, SNMP_OID_upsAdvTestDiagnostics, SNMP_OID_upsAdvTestRuntimeCalibration, \
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
-    SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate, SNMP_OID_sysObjectID
+    SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate, SNMP_OID_sysObjectID, \
+    SNMP_OID_upsHighPrecOutputCurrent
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 # https://networkupstools.org/protocols/apcsmart.html
@@ -22,7 +23,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
 
     def __init__(self, local_ip='', local_port=161, tx=32, rx=33):
         super().__init__(local_ip, local_port)
-        self.add_oid(SNMP_OID_sysObjectID)
+        #self.add_oid(SNMP_OID_sysObjectID)
         self.add_oid(SNMP_OID_upsBasicIdentModel)# "Smart-UPS APC SC-420"
         self.add_oid(SNMP_OID_upsAdvIdentFirmwareRevision)  # "411.7.I"
         self.add_oid(SNMP_OID_upsAdvIdentDateOfManufacture) # "12/10/07"
@@ -53,6 +54,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.add_oid(SNMP_OID_upsBasicOutputStatus) #           = ASN1_INT, 2 #NTEGER: onLine(2)
         self.add_oid(SNMP_OID_upsAdvOutputLoad) #               = SNMP_GUAGE, 26
         self.add_oid(SNMP_OID_upsHighPrecOutputLoad) #          = SNMP_GUAGE, 260
+        self.add_oid(SNMP_OID_upsHighPrecOutputCurrent) #          = SNMP_GUAGE, 260
         self.add_oid(SNMP_OID_upsAdvConfigRatedOutputVoltage) # = ASN1_INT, 230 get/set, Possible values are 100, 120, 208, 220, 225, 230 and 240.
         self.add_oid(SNMP_OID_upsAdvConfigHighTransferVolt) #   = ASN1_INT, 253
         self.add_oid(SNMP_OID_upsAdvConfigLowTransferVolt) #    = ASN1_INT, 161
@@ -87,8 +89,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
 #        print('mem_free',)
         res = None
         try:
-            if oid == SNMP_OID_sysObjectID:
-                res = "1.3.6.1.4.1.318.1.3.2" #"1.3.6.1.4.1.318.1.3.2"
+            #if oid == SNMP_OID_sysObjectID:
+            #    res = "1.3.6.1.4.1.318.1.3.2" #"1.3.6.1.4.1.318.1.3.2"
             if oid == SNMP_OID_upsBasicIdentModel:
                 res = self.ups.smartpool(self.ups.APC_CMD_UPSMODEL)
             if oid == SNMP_OID_upsAdvIdentFirmwareRevision:
@@ -212,6 +214,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
                 res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_LOAD))
             if oid == SNMP_OID_upsHighPrecOutputLoad:
                 res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_LOAD))
+            if oid == SNMP_OID_upsHighPrecOutputCurrent:
+                res = self._apc_number_string_to_prec_int(self.ups.smartpool(self.ups.APC_CMD_LOAD))
             if oid == SNMP_OID_upsAdvConfigRatedOutputVoltage:
                 res = self._apc_number_string_to_int(self.ups.smartpool(self.ups.APC_CMD_VOUT))
             if oid == SNMP_OID_upsAdvConfigHighTransferVolt:
@@ -264,7 +268,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             #print("get:oid {} is temperatureC".format(oid))
         if res is None: #from constants _SNMP_OIDs or SNMP_ERR_NOSUCHNAME
             res = super().handle_get(oid, community)
-            #print(oid, res)
+            print(oid, 'no found')
         return res
 
     def handle_set(self, oid, community, value):

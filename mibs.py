@@ -46,6 +46,7 @@ SNMP_OID_upsHighPrecInputFrequency = const2("1.3.6.1.4.1.318.1.1.1.3.3.4.0"), SN
 SNMP_OID_upsBasicOutputStatus = const2("1.3.6.1.4.1.318.1.1.1.4.1.1.0"), ASN1_INT  # , 2 #NTEGER: onLine(2)
 SNMP_OID_upsAdvOutputLoad = const2("1.3.6.1.4.1.318.1.1.1.4.2.3.0"), SNMP_GUAGE  # , 26
 SNMP_OID_upsHighPrecOutputLoad = const2("1.3.6.1.4.1.318.1.1.1.4.3.3.0"), SNMP_GUAGE  # , 260
+SNMP_OID_upsHighPrecOutputCurrent = const2("1.3.6.1.4.1.318.1.1.1.4.3.4.0"), SNMP_GUAGE  # , 260
 SNMP_OID_upsAdvConfigRatedOutputVoltage = const2("1.3.6.1.4.1.318.1.1.1.5.2.1.0"), ASN1_INT  # , 230 read/write
 SNMP_OID_upsAdvConfigHighTransferVolt = const2("1.3.6.1.4.1.318.1.1.1.5.2.2.0"), ASN1_INT  # , 253 read/write
 SNMP_OID_upsAdvConfigLowTransferVolt = const2("1.3.6.1.4.1.318.1.1.1.5.2.3.0"), ASN1_INT  # , 161 read/write

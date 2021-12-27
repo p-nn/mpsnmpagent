@@ -100,7 +100,7 @@ class ApcSmartUps:
 
     alert = b' '
     cache = {}
-    time_cache = 5
+    time_cache = 10
     DYNAMIC_VALUES = (APC_CMD_STATUS,APC_CMD_LQUAL,APC_CMD_VLINE,APC_CMD_VMAX,
                       APC_CMD_VMIN,APC_CMD_VOUT,APC_CMD_BATTLEV,APC_CMD_VBATT,
                       APC_CMD_LOAD,APC_CMD_FREQ,APC_CMD_RUNTIM,APC_CMD_ITEMP,
