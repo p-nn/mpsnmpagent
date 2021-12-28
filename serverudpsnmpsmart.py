@@ -16,7 +16,7 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
     SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate, SNMP_OID_sysObjectID, \
     SNMP_OID_upsHighPrecOutputCurrent, SNMP_OID_upsPhaseInputMinVoltage, SNMP_OID_upsPhaseOutputMaxCurrent, \
-    SNMP_OID_upsPhaseOutputPercentLoad, SNMP_OID_upsPhaseResetMaxMinValues
+    SNMP_OID_upsPhaseOutputPercentLoad, SNMP_OID_upsPhaseResetMaxMinValues, SNMP_OID_upsPhaseInputFrequency
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 # https://networkupstools.org/protocols/apcsmart.html
@@ -74,6 +74,7 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
         self.add_oid(SNMP_OID_upsAdvTestRuntimeCalibration) #   = ASN1_INT, 1 #INTEGER: noPerformCalibration(1)
         self.add_oid(SNMP_OID_upsAdvTestCalibrationResults) #   = ASN1_INT, 2 #INTEGER: invalidCalibration(2)
         self.add_oid(SNMP_OID_upsPhaseResetMaxMinValues)# -1
+        self.add_oid(SNMP_OID_upsPhaseInputFrequency)# -1
         self.add_oid(SNMP_OID_upsPhaseInputMinVoltage)# -1
         self.add_oid(SNMP_OID_upsPhaseOutputMaxCurrent)# -1
         self.add_oid(SNMP_OID_upsPhaseOutputPercentLoad)# -1
@@ -269,6 +270,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             if oid == SNMP_OID_upsAdvTestCalibrationResults:
                 res = 2 # invalidCalibration(2) by MIB for read
             if oid == SNMP_OID_upsPhaseResetMaxMinValues:
+                res = 0 #-1 FreeBSD NUT require :-(
+            if oid == SNMP_OID_upsPhaseInputFrequency:
                 res = 0 #-1 FreeBSD NUT require :-(
             if oid == SNMP_OID_upsPhaseInputMinVoltage:
                 res = 0 #-1 FreeBSD NUT require :-(
