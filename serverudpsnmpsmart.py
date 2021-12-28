@@ -15,7 +15,8 @@ from mibs import SNMP_OID_upsBasicIdentModel, SNMP_OID_upsAdvIdentFirmwareRevisi
     SNMP_OID_upsAdvControlBypassSwitch, SNMP_OID_upsAdvTestDiagnostics, SNMP_OID_upsAdvTestRuntimeCalibration, \
     SNMP_OID_upsAdvTestCalibrationResults, SNMP_OID_upsAdvBatteryNominalVoltage, \
     SNMP_OID_upsHighPrecBatteryNominalVoltage, SNMP_OID_upsBasicBatteryLastReplaceDate, SNMP_OID_sysObjectID, \
-    SNMP_OID_upsHighPrecOutputCurrent, SNMP_OID_upsPhaseInputMinVoltage, SNMP_OID_upsPhaseOutputMaxCurrent
+    SNMP_OID_upsHighPrecOutputCurrent, SNMP_OID_upsPhaseInputMinVoltage, SNMP_OID_upsPhaseOutputMaxCurrent, \
+    SNMP_OID_psPhaseOutputPercentLoad
 from serverudpsnmp import ServerUdpSnmp
 # https://sourceforge.net/p/apcupsd/mailman/apcupsd-commits/?viewmonth=200505
 # https://networkupstools.org/protocols/apcsmart.html
@@ -268,6 +269,8 @@ class ServerUdpSnmpSmart(ServerUdpSnmp):
             if oid == SNMP_OID_upsPhaseInputMinVoltage:
                 res = 0
             if oid == SNMP_OID_upsPhaseOutputMaxCurrent:
+                res = 0
+            if oid == SNMP_OID_psPhaseOutputPercentLoad:
                 res = 0
         except:
             pass
